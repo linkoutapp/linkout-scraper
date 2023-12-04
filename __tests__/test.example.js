@@ -1,5 +1,12 @@
-const Linkout = require("../lib/linkedin.service");
-const puppeteer = require("puppeteer");
+const Linkout = require("../dist/linkedin.service");
+const puppeteer = require("puppeteer-extra");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -16,39 +23,33 @@ const puppeteer = require("puppeteer");
   // add ghost-cursor for maximum safety
   await Linkout.tools.loadCursor(page, false);
 
-  await Linkout.services.login(page, cdp, {
-    cookie: LI_AT,
+  // remove webdriver detection
+  await page.evaluateOnNewDocument(() => {
+    delete navigator.__proto__.webdriver;
   });
 
-  await Linkout.services.connect(page, cdp, {
-    message: "Hello {{firstName}}, let's connect!",
-    url: "https://www.linkedin.com/in/sai-adarsh/",
+  await Linkout.tools.setUserAgent(page, process.env.USER_AGENT);
+
+  const { token } = await Linkout.services.loginWithEmail(page, cdp, {
+    user: process.env.EMAIL,
+    password: process.env.PASSWORD,
   });
 
-  await Linkout.services.message(page, cdp, {
-    message: "Hey, {{firstName}}!",
-    url: "https://www.linkedin.com/in/sai-adarsh/",
+  await page.setCookie({
+    name: "li_at",
+    value: token,
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    priority: "Medium",
+    path: "/",
+    domain: ".linkedin.com",
   });
 
-  await Linkout.services.visit(page, cdp, {
-    url: "https://www.linkedin.com/in/sai-adarsh/",
+  const comments = await Linkout.services.comments(page, cdp, {
+    user: "https://www.linkedin.com/in/arshiya-mankar-1158a11a5/",
+    count: 2,
   });
 
-  const acceptedConnectionsList = await Linkout.services.acceptedConnections(
-    page,
-    cdp
-  );
-
-  console.log(acceptedConnectionsList);
-
-  await Linkout.services.like(page, cdp, {
-    url: "https://www.linkedin.com/in/sai-adarsh/",
-  });
-
-  await Linkout.services.endorse(page, cdp, {
-    url: "https://www.linkedin.com/in/sai-adarsh/",
-  });
-
-  // Close the browser
-  await browser.close();
+  console.log(comments);
 })();
