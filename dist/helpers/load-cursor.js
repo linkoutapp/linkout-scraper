@@ -7,7 +7,7 @@ async function loadCursor(page, headless) {
   if (!headless) {
     await installMouseHelper(page);
   }
-  page.cursor = await createCursor(page);
+  page.cursor = await createCursor(page, undefined, false);
 }
 
 module.exports = loadCursor;
