@@ -1,14 +1,14 @@
 const { timer } = require("./linkedin.common.service");
 
 async function connectionStatus(page, cdp, data) {
-  const { url } = data;
+  const { user } = data;
 
   try {
-    await page.goto(url);
+    await page.goto(user);
 
     await timer(1000);
 
-    await page.waitForSelector("#profile-content");
+    await page.waitForSelector(".artdeco-card button:nth-child(2)");
 
     await timer(1000);
 
