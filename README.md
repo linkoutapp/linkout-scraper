@@ -12,11 +12,11 @@
   </a>
 </p>
 
-Here you can find secure scraping using Puppeteer for different LinkedIn actions
+Here, you can find secure scraping using Puppeteer for different LinkedIn actions
 
 - [x] Login
 - [x] Connection Request
-- [x] Follow message
+- [x] Follow Message
 - [x] Visit Profile
 - [x] Like posts
 - [x] Endorse Profile
@@ -29,7 +29,7 @@ npm install linkout-scraper puppeteer --save
 
 ## Setup
 
-- Get [LI_AT](https://youtu.be/H8BVdAIyFJM) - this token will be used to authenticate to user's LinkedIn profile.
+- Get [LI_AT](https://youtu.be/H8BVdAIyFJM) - this token will be used to authenticate the user's LinkedIn profile.
 
 ## Usage
 
@@ -78,16 +78,16 @@ const puppeteer = require("puppeteer");
 
 ## Who made this project
 
-This project was made by [Linkout](https://linkout.space) - LinkedIn Outreach on Autopilot, and being maintained by [Sai Adarsh S](https://github.com/sai-adarsh). Any contribution is welcomed!
+This project was made by [Linkout](https://linkout.space) - LinkedIn Outreach on Autopilot, and being maintained by [Sai Adarsh S](https://github.com/sai-adarsh). Any contribution is welcome!
 
 ## 🤝 Contributing
 
 [Please check our Contribution guide to get started!](https://github.com/linkoutapp/linkout-scraper/blob/main/CONTRIBUTING.md)
 
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/linkoutapp/linkout-scraper/issues?q=is%3Aopen).
+Contributions, issues, and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/linkoutapp/linkout-scraper/issues?q=is%3Aopen).
 
-- Fork the repository, Clone it on your device. That's it 🎉
-- Finally make a pull request :)
+- Fork the repository and clone it on your device. That's it 🎉
+- Finally, make a pull request :)
 
 ## 📝 License
 
