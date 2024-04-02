@@ -1,8 +1,4 @@
-const {
-  scrapeProfileData,
-  timer,
-  LinkedInErrors
-} = require("./linkedin.common.service");
+const { scrapeProfileData, timer } = require("./linkedin.common.service");
 
 async function visit(page, cdp, data) {
   const { url } = data;
@@ -20,7 +16,7 @@ async function visit(page, cdp, data) {
       console.error("An error occurred:", LinkedInErrors.FAILED_SCRAPING_PROFILE);
     }
   } catch (error) {
-    console.error("An error occurred:", LinkedInErrors.FAILED_SCRAPING_PROFILE);
+    console.error("An error occurred:", error);
   }
 }
 

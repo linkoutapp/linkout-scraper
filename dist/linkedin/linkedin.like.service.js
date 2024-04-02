@@ -1,8 +1,4 @@
-const {
-  createLinkedinUrl,
-  timer,
-  LinkedInErrors
-} = require("./linkedin.common.service");
+const { createLinkedinUrl, timer } = require("./linkedin.common.service");
 
 async function like(page, cdp, data) {
   const { url } = data;
@@ -18,7 +14,7 @@ async function like(page, cdp, data) {
 
     await page.cursor.click('button[aria-label="React Like"]');
   } catch (error) {
-    console.error("An error occurred:", LinkedInErrors.NO_POSTS_FOUND);
+    console.error("An error occurred:", error);
   }
 }
 
