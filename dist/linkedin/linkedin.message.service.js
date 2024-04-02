@@ -2,8 +2,7 @@ const {
   scrapeProfileData,
   generateMessage,
   typeMessage,
-  timer,
-  LinkedInErrors
+  timer
 } = require("./linkedin.common.service");
 
 async function message(page, cdp, data) {
@@ -17,13 +16,11 @@ async function message(page, cdp, data) {
     if (profileData && typeof profileData.fullName === "string" && profileData.fullName.trim() !== "" && typeof profileData.firstName === "string" && profileData.firstName.trim() !== "" && typeof profileData.lastName === "string" && profileData.lastName.trim() !== "") {
       const replacedMessage = generateMessage(message, profileData);
 
-      await page.waitForSelector('button[aria-label*="Message"]');
+      await page.waitForSelector('section.artdeco-card button[aria-label*="Message"]');
 
       // await timer(3000);
 
-      await page.evaluate(async () => {
-        document.querySelector('button[aria-label*="Message"]').click();
-      });
+      await page.cursor.click('section.artdeco-card button[aria-label*="Message"]');
 
       await page.waitForSelector(".msg-form__contenteditable");
 
@@ -47,10 +44,10 @@ async function message(page, cdp, data) {
 
       await page.cursor.click(".msg-form__send-button:not(:disabled)");
     } else {
-      console.error("An error occurred:", LinkedInErrors.FAILED_SCRAPING_PROFILE);
+      console.error("An error occurred:", error);
     }
   } catch (error) {
-    console.error("An error occurred:", LinkedInErrors.MESSAGE_PENDING_NOT_CONNECTED);
+    console.error("An error occurred:", error);
   }
 }
 

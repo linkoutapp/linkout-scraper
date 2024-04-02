@@ -2,8 +2,7 @@ const {
   scrapeProfileData,
   generateMessage,
   typeMessage,
-  timer,
-  LinkedInErrors
+  timer
 } = require("./linkedin.common.service");
 
 async function connect(page, cdp, data) {
@@ -17,29 +16,23 @@ async function connect(page, cdp, data) {
     if (profileData && typeof profileData.fullName === "string" && profileData.fullName.trim() !== "" && typeof profileData.firstName === "string" && profileData.firstName.trim() !== "" && typeof profileData.lastName === "string" && profileData.lastName.trim() !== "") {
       try {
         // 2nd/3rd connection
-        await page.waitForSelector(`button[aria-label*="Invite ${profileData.firstName.trim()}"]`);
+        await page.waitForSelector(`section.artdeco-card button[aria-label*="Invite ${profileData.firstName.trim()}"]`);
 
-        await page.evaluate(async profileData => {
-          document.querySelector(`button[aria-label*="Invite ${profileData.firstName.trim()}"]`).click();
-        }, profileData);
+        await page.cursor.click(`section.artdeco-card button[aria-label*="Invite ${profileData.firstName.trim()}"]`);
       } catch (err) {
         try {
           // 3rd connection
-          await page.waitForSelector('button[aria-label*="More actions"]');
+          await page.waitForSelector('section.artdeco-card button[aria-label*="More actions"]');
 
-          await timer(3000);
+          await timer(1000);
 
-          await page.evaluate(() => {
-            document.querySelector(`button[aria-label*="More actions"]`).click();
-          });
+          await page.cursor.click('section.artdeco-card button[aria-label*="More actions"]');
 
-          await page.waitForSelector('div[aria-label*="to connect"]');
+          await page.waitForSelector('section.artdeco-card div[aria-label*="to connect"]');
 
-          await timer(3000);
+          await timer(1000);
 
-          await page.evaluate(() => {
-            document.querySelector(`div[aria-label*="to connect"]`).click();
-          });
+          await page.cursor.click('section.artdeco-card div[aria-label*="to connect"]');
         } catch (err) {}
       }
 
@@ -48,27 +41,27 @@ async function connect(page, cdp, data) {
 
         await page.waitForSelector('button[aria-label*="Add a note"]');
 
-        await timer(3000);
+        await timer(1000);
 
         await page.cursor.click('button[aria-label*="Add a note"]');
 
         await page.waitForSelector('textarea[name*="message"]');
 
-        await timer(3000);
+        await timer(1000);
 
         await typeMessage(page, replacedMessage, 'textarea[name*="message"]');
       }
     } else {
-      console.error("An error occurred:", LinkedInErrors.FAILED_SCRAPING_PROFILE);
+      console.error("An error occurred:", error);
     }
 
     await page.waitForSelector('button[aria-label*="Send now"]:not(:disabled)');
 
-    await timer(3000);
+    await timer(1000);
 
     await page.cursor.click('button[aria-label*="Send now"]:not(:disabled)');
   } catch (error) {
-    console.error("An error occurred:", LinkedInErrors.CONNECT_PENDING_NOT_CONNECTED_LIMIT_EXCEEDED);
+    console.error("An error occurred:", error);
   }
 }
 
