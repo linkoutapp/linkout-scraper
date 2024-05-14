@@ -100,7 +100,12 @@ async function postsWithComments(page, cdp, data) {
       const comments = Array.from(document.querySelectorAll(".comments-post-meta__name-text")).map(nameElement => {
         const name = nameElement.innerText.trim().split("\n")[0];
         const linkElement = nameElement.closest("a");
-        const link = "https://www.linkedin.com" + (linkElement ? linkElement.getAttribute("href") : "");
+        let link = "https://www.linkedin.com";
+
+        if (linkElement) {
+          const url = new URL(linkElement.getAttribute("href"), "https://www.linkedin.com");
+          link = url.href;
+        }
 
         const commentElement = nameElement.closest(".comments-comment-item, .comments-reply-item");
         let comment = "";
