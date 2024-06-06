@@ -26,7 +26,7 @@ async function message(page, cdp, data) {
 
       // await timer(3000);
 
-      await page.evaluate(async () => {
+      await page.evaluate(() => {
         const textBoxes = document.querySelectorAll(".msg-form__contenteditable");
         const lastTextBox = textBoxes[textBoxes.length - 1];
         lastTextBox.classList.add("msg-current_textbox");
@@ -44,7 +44,7 @@ async function message(page, cdp, data) {
 
       await page.cursor.click(".msg-form__send-button:not(:disabled)");
     } else {
-      console.error("An error occurred:", error);
+      console.error("Profile data is incomplete or invalid");
     }
   } catch (error) {
     console.error("An error occurred:", error);
