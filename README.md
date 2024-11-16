@@ -34,8 +34,15 @@ npm install linkout-scraper puppeteer --save
 ## Usage
 
 ```javascript
-const Linkout = require("linkout-scraper");
-const puppeteer = require("puppeteer");
+const Linkout = require("../dist/linkedin.service");
+const puppeteer = require("puppeteer-extra");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -50,7 +57,14 @@ const puppeteer = require("puppeteer");
   });
 
   // add ghost-cursor for maximum safety
-  await Linkout.tools.loadCursor(page, true);
+  await Linkout.tools.loadCursor(page, false);
+
+  // remove webdriver detection
+  await page.evaluateOnNewDocument(() => {
+    delete navigator.__proto__.webdriver;
+  });
+
+  await Linkout.tools.setUserAgent(page, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36');
 
   // Login with LinkedIn
   await Linkout.services.login(page, cdp, {
