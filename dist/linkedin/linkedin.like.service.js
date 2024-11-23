@@ -8,11 +8,9 @@ async function like(page, cdp, data) {
 
     await page.goto(activityUrl);
 
-    await page.waitForSelector('button[aria-label="React Like"]');
+    await page.waitForSelector('button:has(svg[data-test-icon*="thumbs"])');
 
-    await timer(3000);
-
-    await page.cursor.click('button[aria-label="React Like"]');
+    await page.cursor.click('button:has(svg[data-test-icon*="thumbs"])');
   } catch (error) {
     console.error("An error occurred:", error);
   }

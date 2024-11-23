@@ -30,26 +30,7 @@ puppeteer.use(StealthPlugin());
 
   await Linkout.tools.setUserAgent(page, process.env.USER_AGENT);
 
-  const { token } = await Linkout.services.loginWithEmail(page, cdp, {
-    user: process.env.EMAIL,
-    password: process.env.PASSWORD,
+  await Linkout.services.login(page, cdp, {
+    cookie: "",
   });
-
-  await page.setCookie({
-    name: "li_at",
-    value: token,
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    priority: "Medium",
-    path: "/",
-    domain: ".linkedin.com",
-  });
-
-  const comments = await Linkout.services.comments(page, cdp, {
-    user: "https://www.linkedin.com/in/arshiya-mankar-1158a11a5/",
-    count: 2,
-  });
-
-  console.log(comments);
 })();
