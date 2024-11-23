@@ -24,7 +24,7 @@ Here you can find secure scraping using Puppeteer for different LinkedIn actions
 ## Install
 
 ```sh
-npm install linkout-scraper puppeteer --save
+npm install linkout-scraper puppeteer-extra --save
 ```
 
 ## Setup
