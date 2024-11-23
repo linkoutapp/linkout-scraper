@@ -16,7 +16,6 @@ async function login(page, cdp, data) {
     });
 
     await timer(3000);
-
     await page.goto("https://www.linkedin.com/feed/");
   } catch (error) {
     console.error("An error occurred:", error);
