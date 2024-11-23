@@ -34,7 +34,7 @@ npm install linkout-scraper puppeteer --save
 ## Usage
 
 ```javascript
-const Linkout = require("../dist/linkedin.service");
+const Linkout = require("linkout-scraper");
 const puppeteer = require("puppeteer-extra");
 const dotenv = require("dotenv");
 
@@ -79,7 +79,7 @@ puppeteer.use(StealthPlugin());
 
   // Send a message on LinkedIn
   await Linkout.services.message(page, cdp, {
-    message: "Got it, {{firstName}}!",
+    message: "Hello, {{firstName}}!",
     url: "https://www.linkedin.com/in/sai-adarsh/",
   });
 
