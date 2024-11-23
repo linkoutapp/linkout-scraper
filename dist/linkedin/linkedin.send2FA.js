@@ -1,5 +1,3 @@
-const { typeMessage, timer } = require("./linkedin.common.service");
-
 async function send2FA(page, cdp, data) {
   const { code } = data;
 
@@ -9,10 +7,14 @@ async function send2FA(page, cdp, data) {
     if (currentUrl.includes("checkpoint")) {
       await page.waitForSelector(".input_verification_pin");
 
-      if (code) {
-        await typeMessage(page, code, ".input_verification_pin");
+      await page.cursor.click(".input_verification_pin");
 
-        await timer(2000);
+      if (code) {
+        for (const char of code) {
+          await page.keyboard.press(char, {
+            delay: 30 + Math.floor(Math.random() * (50 - 50 + 1) + 50)
+          });
+        }
 
         await page.cursor.click('button[type="submit"]');
       } else {
