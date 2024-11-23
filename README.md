@@ -92,7 +92,7 @@ puppeteer.use(StealthPlugin());
 
 ## Who made this project
 
-This project was made by [Linkout](https://linkout.space) - LinkedIn Outreach on Autopilot, and being maintained by [Sai Adarsh S](https://github.com/sai-adarsh). Any contribution is welcomed!
+This project was made by [Linkout](https://linkout.space) - LinkedIn Outreach on Autopilot, and being maintained by [Sai Adarsh](https://github.com/sai-adarsh). Any contribution is welcomed!
 
 ## 🤝 Contributing
 
