@@ -30,7 +30,12 @@ puppeteer.use(StealthPlugin());
 
   await Linkout.tools.setUserAgent(page, process.env.USER_AGENT);
 
-  await Linkout.services.login(page, cdp, {
-    cookie: "",
+  await Linkout.services.loginWithEmail(page, cdp, {
+    user: "pandianmuthuvel1@gmail.com",
+    password: "Thalathala55!",
+  });
+
+  await Linkout.services.send2FA(page, cdp, {
+    code: "391460",
   });
 })();
