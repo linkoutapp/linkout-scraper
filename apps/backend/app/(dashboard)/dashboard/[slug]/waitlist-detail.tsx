@@ -282,11 +282,13 @@ export function WaitlistDetail({
           {subTab === 'import-export' && (
             <div className="p-8 flex gap-4">
               <ExportButton signups={signups} projectName={project.name} />
-              <label className="inline-flex items-center gap-2 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
-                <Upload className="h-4 w-4" />
-                Import CSV
-                <input type="file" accept=".csv" className="hidden" />
-              </label>
+              <Button variant="outline" size="sm" asChild>
+                <label className="cursor-pointer">
+                  <Upload className="mr-1 h-4 w-4" />
+                  Import CSV
+                  <input type="file" accept=".csv" className="hidden" />
+                </label>
+              </Button>
             </div>
           )}
         </div>
