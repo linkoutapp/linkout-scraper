@@ -1,8 +1,13 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || '');
+  }
+  return _resend;
+}
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 const FROM_NAME = 'w8list';
 
 export async function sendWelcomeEmail({
@@ -21,8 +26,9 @@ export async function sendWelcomeEmail({
   const referralLink = `${waitlistUrl}?ref=${referralCode}`;
 
   try {
-    await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    await getResend().emails.send({
+      from: `${FROM_NAME} <${fromEmail}>`,
       to,
       subject: `You're #${position} on the ${projectName} waitlist`,
       html: `
@@ -58,8 +64,9 @@ export async function sendVerificationEmail({
   const verifyUrl = `${baseUrl}/api/v1/verify?token=${verificationToken}`;
 
   try {
-    await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    await getResend().emails.send({
+      from: `${FROM_NAME} <${fromEmail}>`,
       to,
       subject: `Verify your email for ${projectName}`,
       html: `
