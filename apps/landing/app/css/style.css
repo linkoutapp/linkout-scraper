@@ -1,0 +1,601 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Additional styles */
+@import './additional-styles/utility-patterns.css' layer(components);
+@import './additional-styles/theme.css';
+
+@plugin "@tailwindcss/forms" {
+  strategy: base;
+}
+
+@theme {
+  --font-inter: Inter, sans-serif;
+  --font-mono: Roboto Mono, monospace;
+
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5715;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-base--letter-spacing: -0.017em;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.5;
+  --text-lg--letter-spacing: -0.017em;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.5;
+  --text-xl--letter-spacing: -0.017em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.415;
+  --text-2xl--letter-spacing: -0.037em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.3333;
+  --text-3xl--letter-spacing: -0.037em;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 1.2777;
+  --text-4xl--letter-spacing: -0.037em;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+  --text-5xl--letter-spacing: -0.037em;
+  --text-6xl: 4rem;
+  --text-6xl--line-height: 1;
+  --text-6xl--letter-spacing: -0.037em;
+  --text-7xl: 4.5rem;
+  --text-7xl--line-height: 1;
+  --text-7xl--letter-spacing: -0.037em;
+
+  --animate-code-1: code-1;
+  --animate-code-2: code-2;
+  --animate-code-3: code-3;
+  --animate-code-4: code-4;
+  --animate-code-5: code-5;
+  --animate-code-6: code-6;
+  --animate-breath: breath;
+  --animate-float: float;
+  --animate-line: line;
+  --animate-infinite-scroll: infinite-scroll;  
+
+  @keyframes code-1 {
+    0% {
+      opacity: 0;
+    }
+    2.5% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes code-2 {
+    16.2% {
+      opacity: 0;
+    }
+    18.75% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes code-3 {
+    32.5% {
+      opacity: 0;
+    }
+    35% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes code-4 {
+    48.75% {
+      opacity: 0;
+    }
+    51.25% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes code-5 {
+    65% {
+      opacity: 0;
+    }
+    72.5% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes code-6 {
+    81.25% {
+      opacity: 0;
+    }
+    83.75% {
+      opacity: 1;
+    }
+    97.5% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes breath {
+    0%,
+    100% {
+      transform: scale(0.95);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5%);
+    }
+  }
+  @keyframes line {
+    0%,
+    100% {
+      left: 0;
+      opacity: 0;
+    }
+    50% {
+      left: 100%;
+      transform: translateX(-100%);
+    }
+    10%,
+    40%,
+    60%,
+    90% {
+      opacity: 0;
+    }
+    25%,
+    75% {
+      opacity: 1;
+    }
+  }
+  @keyframes infinite-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  .dark *,
+  .dark ::after,
+  .dark ::before,
+  .dark ::backdrop,
+  .dark ::file-selector-button {
+    border-color: var(--color-gray-700, currentColor);
+  }
+
+}
+
+:root {
+  --border-line: #cbd5e1;
+}
+.dark {
+  --border-line: #334155;
+}
+
+/* Rotating shiny border */
+.shiny-border {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  padding: 1.5px;
+}
+.shiny-border::before {
+  content: '';
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #3b82f6 10%,
+    #60a5fa 15%,
+    #93c5fd 20%,
+    transparent 30%,
+    transparent 100%
+  );
+  animation: shiny-spin 3s linear infinite;
+}
+.shiny-border > * {
+  position: relative;
+  z-index: 1;
+}
+@keyframes shiny-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes formAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =============================================
+   ScreenStudio-style demo animation
+   Duration: 11s (1.25x speed), loops infinitely
+   ============================================= */
+
+/* Camera (stage) — pan and zoom */
+.demo-stage {
+  animation: demoCamera 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes demoCamera {
+  /* Hold on script tag — quick copy */
+  0%, 10% {
+    transform: scale(1.6) translate(-19%, -5%);
+  }
+  /* Pan to left site */
+  20% {
+    transform: scale(1.8) translate(-8%, -28%);
+  }
+  /* Hold on left site — paste */
+  38% {
+    transform: scale(1.8) translate(-8%, -28%);
+  }
+  /* Pan to right site */
+  48% {
+    transform: scale(1.8) translate(-42%, -28%);
+  }
+  /* Hold on right site — paste */
+  64% {
+    transform: scale(1.8) translate(-42%, -28%);
+  }
+  /* Zoom out */
+  74%, 92% {
+    transform: scale(1) translate(0%, 0%);
+  }
+  /* Reset */
+  100% {
+    transform: scale(1.6) translate(-19%, -5%);
+  }
+}
+
+/* Cursor movement */
+.demo-cursor {
+  animation: demoCursor 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes demoCursor {
+  0% {
+    top: 8%;
+    left: 70%;
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  /* Arrive at copy icon */
+  5%, 7% {
+    top: 8%;
+    left: 58%;
+    opacity: 1;
+  }
+  /* Move to left site — paste */
+  20% {
+    top: 62%;
+    left: 28%;
+    opacity: 1;
+  }
+  /* Hold on left site */
+  38% {
+    top: 62%;
+    left: 28%;
+    opacity: 1;
+  }
+  /* Move to right site — paste */
+  48% {
+    top: 62%;
+    left: 72%;
+    opacity: 1;
+  }
+  /* Hold on right site */
+  64% {
+    top: 62%;
+    left: 72%;
+    opacity: 1;
+  }
+  /* Fade out with zoom-out */
+  74% {
+    opacity: 0;
+  }
+  100% {
+    top: 8%;
+    left: 70%;
+    opacity: 0;
+  }
+}
+
+/* Selection highlight on script tag */
+.demo-selection {
+  animation: demoSelect 11s ease infinite;
+}
+
+@keyframes demoSelect {
+  0%, 4% {
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  5% {
+    opacity: 1;
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  8% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  12% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* "Copied!" badge */
+.demo-copied {
+  animation: demoCopied 11s ease infinite;
+}
+
+@keyframes demoCopied {
+  0%, 5% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  6% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Copy icon → check icon swap */
+.demo-copy-icon {
+  animation: demoCopyIcon 11s ease infinite;
+}
+
+@keyframes demoCopyIcon {
+  0%, 5% { opacity: 1; }
+  6% { opacity: 0; }
+  14% { opacity: 0; }
+  16% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.demo-check-icon {
+  animation: demoCheckIcon 11s ease infinite;
+}
+
+@keyframes demoCheckIcon {
+  0%, 5% { opacity: 0; }
+  6% { opacity: 1; }
+  14% { opacity: 1; }
+  16% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Click ripple */
+.demo-click {
+  animation: demoRipple 11s ease infinite;
+}
+
+@keyframes demoRipple {
+  /* Paste click on left site */
+  0%, 21% {
+    opacity: 0;
+    top: 62%;
+    left: 28%;
+    transform: scale(0);
+  }
+  22% {
+    opacity: 0.8;
+    top: 62%;
+    left: 28%;
+    transform: scale(0.5);
+  }
+  25% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  /* Paste click on right site */
+  49% {
+    opacity: 0;
+    top: 62%;
+    left: 72%;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 0.8;
+    top: 62%;
+    left: 72%;
+    transform: scale(0.5);
+  }
+  53% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Left form container reveal */
+.demo-form-left {
+  animation: demoFormLeft 11s ease infinite;
+}
+
+@keyframes demoFormLeft {
+  0%, 23% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  26% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+  }
+  96%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Right form container reveal */
+.demo-form-right {
+  animation: demoFormRight 11s ease infinite;
+}
+
+@keyframes demoFormRight {
+  0%, 51% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  54% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+  }
+  96%, 100% {
+    opacity: 0;
+  }
+}
+
+/* =============================================
+   Generative row reveals — left form (staggered)
+   Each row fades in + slides up sequentially
+   ============================================= */
+.gen-row-1 { animation: genL1 11s ease infinite; }
+.gen-row-2 { animation: genL2 11s ease infinite; }
+.gen-row-3 { animation: genL3 11s ease infinite; }
+.gen-row-4 { animation: genL4 11s ease infinite; }
+
+@keyframes genL1 {
+  0%, 25% { opacity: 0; transform: translateY(6px); }
+  28% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genL2 {
+  0%, 27% { opacity: 0; transform: translateY(6px); }
+  30% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genL3 {
+  0%, 29% { opacity: 0; transform: translateY(6px); }
+  32% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genL4 {
+  0%, 31% { opacity: 0; transform: translateY(6px); }
+  34% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+
+/* =============================================
+   Generative row reveals — right form (staggered)
+   ============================================= */
+.gen-row-1r { animation: genR1 11s ease infinite; }
+.gen-row-2r { animation: genR2 11s ease infinite; }
+.gen-row-3r { animation: genR3 11s ease infinite; }
+.gen-row-4r { animation: genR4 11s ease infinite; }
+
+@keyframes genR1 {
+  0%, 53% { opacity: 0; transform: translateY(6px); }
+  56% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genR2 {
+  0%, 55% { opacity: 0; transform: translateY(6px); }
+  58% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genR3 {
+  0%, 57% { opacity: 0; transform: translateY(6px); }
+  60% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+@keyframes genR4 {
+  0%, 59% { opacity: 0; transform: translateY(6px); }
+  62% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}

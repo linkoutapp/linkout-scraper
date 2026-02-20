@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1771592439080,
+      "tag": "0000_sloppy_agent_brand",
+      "breakpoints": true
+    }
+  ]
+}

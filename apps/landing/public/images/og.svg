@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1260" viewBox="0 0 2400 1260">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#030712"/>
+      <stop offset="100%" stop-color="#0a0f1a"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="1" fill="#334155" opacity="0.4"/>
+    </pattern>
+    <radialGradient id="glow" cx="0.5" cy="0.6" r="0.5">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#030712" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="2400" height="1260" fill="url(#bg)"/>
+  <rect width="2400" height="1260" fill="url(#dots)"/>
+  <rect width="2400" height="1260" fill="url(#glow)"/>
+  <!-- Linkout -->
+  <text x="1200" y="470" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="96" fill="#f1f5f9" letter-spacing="-2">Linkout</text>
+  <!-- Tagline -->
+  <text x="1200" y="560" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="500" font-size="40" fill="#94a3b8">LinkedIn outreach from your CLI.</text>
+  <!-- Sub-tagline -->
+  <text x="1200" y="620" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="400" font-size="32" fill="#64748b">Scale to 100 messages a day. Zero bans.</text>
+  <!-- Terminal snippet -->
+  <rect x="750" y="700" width="900" height="200" rx="16" fill="#111827" stroke="#1e293b" stroke-width="1.5"/>
+  <!-- Terminal dots -->
+  <circle cx="786" cy="732" r="6" fill="#374151"/>
+  <circle cx="808" cy="732" r="6" fill="#374151"/>
+  <circle cx="830" cy="732" r="6" fill="#374151"/>
+  <!-- Terminal text -->
+  <text x="786" y="790" font-family="'SF Mono', 'Fira Code', monospace" font-size="24" fill="#64748b">$ </text>
+  <text x="816" y="790" font-family="'SF Mono', 'Fira Code', monospace" font-size="24" fill="#e2e8f0">npm install -g linkout-scraper-v2</text>
+  <text x="786" y="830" font-family="'SF Mono', 'Fira Code', monospace" font-size="24" fill="#64748b">$ </text>
+  <text x="816" y="830" font-family="'SF Mono', 'Fira Code', monospace" font-size="24" fill="#e2e8f0">linkout message johndoe "Hey!"</text>
+  <text x="786" y="870" font-family="'SF Mono', 'Fira Code', monospace" font-size="24" fill="#4ade80">✓ Message sent to John Doe</text>
+  <!-- URL -->
+  <text x="1200" y="1000" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="500" font-size="28" fill="#475569">linkout.space</text>
+</svg>
