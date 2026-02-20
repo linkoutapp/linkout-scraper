@@ -4,6 +4,8 @@ import { projects, signups } from '@/lib/db/schema';
 import { eq, count } from 'drizzle-orm';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
