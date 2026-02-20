@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useRef, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, SlidersHorizontal, Download, Upload, Code, AlertTriangle, X, UserPlus, FileText, Puzzle, ArrowRight, Copy, ChevronDown, Trash2, UserMinus } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Upload, AlertTriangle, X, UserPlus, FileText, Puzzle, ArrowRight, Copy, Trash2 } from 'lucide-react';
 import type { Project, Signup } from '@/lib/db/schema';
 import { CopyButton } from './copy-button';
 import { ExportButton } from './export-button';
-import { updateProject, deleteProject, bulkDeleteSignups, bulkOffboardSignups } from '../actions';
+import { updateProject, deleteProject } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 type Tab = 'signups' | 'widget' | 'settings';
-type SignupSubTab = 'all' | 'offboarded' | 'import-export';
+type SignupSubTab = 'all' | 'import-export';
 
 export function WaitlistDetail({
   project,
@@ -28,67 +27,12 @@ export function WaitlistDetail({
   const [subTab, setSubTab] = useState<SignupSubTab>('all');
   const [search, setSearch] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [showActions, setShowActions] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
-  const activeSignups = signups.filter((s) => !s.offboarded);
-  const offboardedSignups = signups.filter((s) => s.offboarded);
-
-  const filtered = activeSignups.filter(
+  const filtered = signups.filter(
     (s) =>
       s.email.toLowerCase().includes(search.toLowerCase()) ||
       (s.name && s.name.toLowerCase().includes(search.toLowerCase()))
   );
-
-  const filteredOffboarded = offboardedSignups.filter(
-    (s) =>
-      s.email.toLowerCase().includes(search.toLowerCase()) ||
-      (s.name && s.name.toLowerCase().includes(search.toLowerCase()))
-  );
-
-  function toggleSelect(id: number) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
-  function toggleSelectAll(list: typeof signups) {
-    const allIds = list.map((s) => s.id);
-    const allSelected = allIds.every((id) => selected.has(id));
-    if (allSelected) {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        allIds.forEach((id) => next.delete(id));
-        return next;
-      });
-    } else {
-      setSelected((prev) => {
-        const next = new Set(prev);
-        allIds.forEach((id) => next.add(id));
-        return next;
-      });
-    }
-  }
-
-  function handleBulkAction(action: 'delete' | 'offboard') {
-    const ids = Array.from(selected);
-    if (ids.length === 0) return;
-    setShowActions(false);
-    startTransition(async () => {
-      if (action === 'delete') {
-        await bulkDeleteSignups(ids);
-      } else {
-        await bulkOffboardSignups(ids);
-      }
-      setSelected(new Set());
-      router.refresh();
-    });
-  }
 
   return (
     <div className="flex flex-col h-full">
@@ -117,9 +61,6 @@ export function WaitlistDetail({
               <SubTabButton active={subTab === 'all'} onClick={() => { setSubTab('all'); setSelected(new Set()); }}>
                 All Signups
               </SubTabButton>
-              <SubTabButton active={subTab === 'offboarded'} onClick={() => { setSubTab('offboarded'); setSelected(new Set()); }}>
-                Offboarded Signups
-              </SubTabButton>
               <SubTabButton active={subTab === 'import-export'} onClick={() => { setSubTab('import-export'); setSelected(new Set()); }}>
                 Import and Export
               </SubTabButton>
@@ -135,47 +76,6 @@ export function WaitlistDetail({
                   className="pl-9 pr-3 h-8 w-56"
                 />
               </div>
-              <Button variant="outline" size="sm">
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                Filter
-              </Button>
-              {/* Actions dropdown */}
-              <div className="relative">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowActions(!showActions)}
-                  disabled={selected.size === 0 || isPending}
-                >
-                  Actions{selected.size > 0 && ` (${selected.size})`}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </Button>
-                {showActions && (
-                  <>
-                    <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
-                    <div className="absolute right-0 top-full mt-1 z-20 w-44 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleBulkAction('offboard')}
-                        className="w-full justify-start"
-                      >
-                        <UserMinus className="h-4 w-4" />
-                        Offboard
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleBulkAction('delete')}
-                        className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
 
@@ -184,14 +84,6 @@ export function WaitlistDetail({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-y border-gray-200 bg-gray-50/50">
-                    <th className="w-10 px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={filtered.length > 0 && filtered.every((s) => selected.has(s.id))}
-                        onChange={() => toggleSelectAll(filtered)}
-                        className="rounded border-gray-300"
-                      />
-                    </th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Position</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Email</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-500">Joined</th>
@@ -202,21 +94,13 @@ export function WaitlistDetail({
                 <tbody className="divide-y divide-gray-100">
                   {filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+                      <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
                         No signups match your search.
                       </td>
                     </tr>
                   ) : (
                     filtered.map((signup) => (
-                      <tr key={signup.id} className={`hover:bg-gray-50 transition-colors ${selected.has(signup.id) ? 'bg-gray-100/50' : ''}`}>
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            checked={selected.has(signup.id)}
-                            onChange={() => toggleSelect(signup.id)}
-                            className="rounded border-gray-300"
-                          />
-                        </td>
+                      <tr key={signup.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3 text-gray-700">{signup.position}</td>
                         <td className="px-4 py-3 text-gray-900">{signup.email}</td>
                         <td className="px-4 py-3 text-gray-600">{new Date(signup.createdAt).toISOString().split('T')[0]}</td>
@@ -227,55 +111,6 @@ export function WaitlistDetail({
                   )}
                 </tbody>
               </table>
-            </div>
-          )}
-
-          {subTab === 'offboarded' && (
-            <div className="flex-1 overflow-auto">
-              {filteredOffboarded.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center text-gray-400 text-sm py-16">
-                  No offboarded signups.
-                </div>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-y border-gray-200 bg-gray-50/50">
-                      <th className="w-10 px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={filteredOffboarded.length > 0 && filteredOffboarded.every((s) => selected.has(s.id))}
-                          onChange={() => toggleSelectAll(filteredOffboarded)}
-                          className="rounded border-gray-300"
-                        />
-                      </th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-500">Position</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-500">Email</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-500">Joined</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-500">Referred</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-500">Referrals Made</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredOffboarded.map((signup) => (
-                      <tr key={signup.id} className={`hover:bg-gray-50 transition-colors ${selected.has(signup.id) ? 'bg-gray-100/50' : ''}`}>
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            checked={selected.has(signup.id)}
-                            onChange={() => toggleSelect(signup.id)}
-                            className="rounded border-gray-300"
-                          />
-                        </td>
-                        <td className="px-4 py-3 text-gray-700">{signup.position}</td>
-                        <td className="px-4 py-3 text-gray-900">{signup.email}</td>
-                        <td className="px-4 py-3 text-gray-600">{new Date(signup.createdAt).toISOString().split('T')[0]}</td>
-                        <td className="px-4 py-3 text-gray-600">{signup.referredBy ? 'Yes' : 'No'}</td>
-                        <td className="px-4 py-3 text-gray-600">0</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
             </div>
           )}
 
