@@ -575,6 +575,29 @@
 .gen-row-3r { animation: genR3 11s ease infinite; }
 .gen-row-4r { animation: genR4 11s ease infinite; }
 
+/* =============================================
+   Mobile responsive demo
+   On small screens: no camera panning, show
+   everything at a comfortable scale
+   ============================================= */
+@media (max-width: 640px) {
+  .demo-stage {
+    animation: demoCameraMobile 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .demo-cursor {
+    display: none;
+  }
+  .demo-click {
+    display: none;
+  }
+}
+
+@keyframes demoCameraMobile {
+  0%, 100% {
+    transform: scale(1) translate(0%, 0%);
+  }
+}
+
 @keyframes genR1 {
   0%, 53% { opacity: 0; transform: translateY(6px); }
   56% { opacity: 1; transform: translateY(0); }

@@ -122,79 +122,79 @@ export default function HeroHome() {
 
                   {/* Two sites side by side */}
                   <div className="grid flex-1 grid-cols-2 gap-4 px-6 pb-6">
-                    {/* LEFT: Soft/rounded light SaaS (gray, large radius) */}
-                    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-                      <div className="flex items-center gap-1.5 border-b border-gray-100 bg-white/80 px-3 py-2">
-                        <span className="h-2 w-2 rounded-full bg-gray-300" />
-                        <span className="h-2 w-2 rounded-full bg-gray-300" />
-                        <span className="h-2 w-2 rounded-full bg-gray-300" />
-                        <span className="ml-2 flex-1 rounded-full bg-gray-50 px-2 py-0.5 text-center text-[9px] text-gray-400">acme.com</span>
+                    {/* LEFT: Stripe-style — violet/white, rounded, clean */}
+                    <div className="overflow-hidden rounded-2xl border border-violet-200/60 bg-white">
+                      <div className="flex items-center gap-1.5 border-b border-violet-100/60 bg-white/80 px-3 py-2">
+                        <span className="h-2 w-2 rounded-full bg-red-400" />
+                        <span className="h-2 w-2 rounded-full bg-yellow-400" />
+                        <span className="h-2 w-2 rounded-full bg-green-400" />
+                        <span className="ml-2 flex-1 rounded-full bg-violet-50 px-2 py-0.5 text-center text-[9px] text-violet-400">stripe.com</span>
                       </div>
                       <div className="px-5 py-5">
                         <div className="mb-5 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 rounded-full bg-gray-800" />
-                            <span className="text-xs font-bold text-gray-900">Acme</span>
+                            <div className="h-5 w-5 rounded-lg" style={{ background: '#635BFF' }} />
+                            <span className="text-xs font-bold text-gray-900">Stripe</span>
                           </div>
                           <div className="flex gap-2">
-                            <div className="h-1.5 w-10 rounded-full bg-gray-100" />
-                            <div className="h-1.5 w-8 rounded-full bg-gray-100" />
+                            <div className="h-1.5 w-10 rounded-full bg-violet-100" />
+                            <div className="h-1.5 w-8 rounded-full bg-violet-50" />
                           </div>
                         </div>
                         <div className="mb-5 text-center">
-                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-full bg-gray-100" />
-                          <div className="mx-auto h-1.5 w-32 rounded-full bg-gray-50" />
+                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-full bg-violet-100/60" />
+                          <div className="mx-auto h-1.5 w-32 rounded-full bg-violet-50" />
                         </div>
-                        {/* Generative form — rounded, solid, staggered reveal */}
+                        {/* Generative form — rounded, violet accent, staggered reveal */}
                         <div className="demo-form-left mx-auto max-w-[240px] opacity-0">
-                          <div className="rounded-2xl border border-gray-200 bg-white/80 p-3 shadow-sm">
+                          <div className="rounded-2xl border border-violet-200/60 bg-white p-3 shadow-sm">
                             <p className="gen-row-1 mb-2 text-center text-[10px] font-semibold text-gray-900 opacity-0">Join the waitlist</p>
-                            <div className="gen-row-2 mb-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 opacity-0">
+                            <div className="gen-row-2 mb-1.5 rounded-full border border-violet-200 bg-violet-50/50 px-3 py-1 opacity-0">
                               <span className="block text-center text-[9px] text-gray-400">your@email.com</span>
                             </div>
-                            <div className="gen-row-3 rounded-full bg-gray-800 py-1 text-center text-[9px] font-medium text-white opacity-0">
+                            <div className="gen-row-3 rounded-full py-1 text-center text-[9px] font-medium text-white opacity-0" style={{ background: '#635BFF' }}>
                               Join Waitlist
                             </div>
-                            <p className="gen-row-4 mt-1.5 text-center text-[8px] text-gray-400 opacity-0">237 people ahead of you</p>
+                            <p className="gen-row-4 mt-1.5 text-center text-[8px] text-violet-400 opacity-0">237 people ahead of you</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* RIGHT: Sharp/angular light dev tool (gray, small radius, hard edges) */}
-                    <div className="overflow-hidden rounded-sm border border-gray-200 bg-gray-50/50">
-                      <div className="flex items-center gap-1.5 border-b border-gray-100 bg-white px-3 py-2">
-                        <span className="h-2 w-2 rounded-sm bg-gray-300" />
-                        <span className="h-2 w-2 rounded-sm bg-gray-300" />
-                        <span className="h-2 w-2 rounded-sm bg-gray-300" />
-                        <span className="ml-2 flex-1 rounded-sm bg-gray-50 px-2 py-0.5 text-center text-[9px] font-mono text-gray-500">devcraft.io</span>
+                    {/* RIGHT: HackerRank-style — dark bg, green accents, sharp edges */}
+                    <div className="overflow-hidden rounded-lg border border-gray-700/60" style={{ background: '#1a1a2e' }}>
+                      <div className="flex items-center gap-1.5 border-b border-gray-700/40 px-3 py-2" style={{ background: '#16213e' }}>
+                        <span className="h-2 w-2 rounded-full bg-red-500/60" />
+                        <span className="h-2 w-2 rounded-full bg-yellow-500/60" />
+                        <span className="h-2 w-2 rounded-full bg-green-500/60" />
+                        <span className="ml-2 flex-1 rounded-sm px-2 py-0.5 text-center text-[9px] font-mono text-green-400/70" style={{ background: '#0f3460' }}>hackerrank.com</span>
                       </div>
                       <div className="px-5 py-5">
                         <div className="mb-5 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 rounded-sm border border-gray-300 bg-gray-700" />
-                            <span className="text-xs font-bold font-mono text-gray-700">DevCraft</span>
+                            <div className="h-5 w-5 rounded-sm" style={{ background: '#00EA64' }} />
+                            <span className="text-xs font-bold font-mono text-green-400">HackerRank</span>
                           </div>
                           <div className="flex gap-2">
-                            <div className="h-1.5 w-10 rounded-sm bg-gray-100" />
-                            <div className="h-1.5 w-8 rounded-sm bg-gray-100" />
+                            <div className="h-1.5 w-10 rounded-sm" style={{ background: '#0f3460' }} />
+                            <div className="h-1.5 w-8 rounded-sm" style={{ background: '#0f3460' }} />
                           </div>
                         </div>
                         <div className="mb-5 text-center">
-                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-sm bg-gray-100" />
-                          <div className="mx-auto h-1.5 w-32 rounded-sm bg-gray-50" />
+                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-sm" style={{ background: '#0f3460' }} />
+                          <div className="mx-auto h-1.5 w-32 rounded-sm" style={{ background: '#16213e' }} />
                         </div>
-                        {/* Generative form — sharp, clean, staggered reveal */}
+                        {/* Generative form — dark, green accent, staggered reveal */}
                         <div className="demo-form-right mx-auto max-w-[240px] opacity-0">
-                          <div className="rounded-sm border border-gray-200 bg-white p-3">
-                            <p className="gen-row-1r mb-2 text-center text-[10px] font-mono font-semibold text-gray-700 opacity-0">Join the waitlist</p>
-                            <div className="gen-row-2r mb-1.5 rounded-sm border border-gray-200 bg-gray-50 px-3 py-1 opacity-0">
-                              <span className="block text-center text-[9px] font-mono text-gray-400">your@email.com</span>
+                          <div className="rounded-lg border border-gray-700/60 p-3" style={{ background: '#16213e' }}>
+                            <p className="gen-row-1r mb-2 text-center text-[10px] font-mono font-semibold text-green-400 opacity-0">Join the waitlist</p>
+                            <div className="gen-row-2r mb-1.5 rounded-sm border border-gray-600/40 px-3 py-1 opacity-0" style={{ background: '#1a1a2e' }}>
+                              <span className="block text-center text-[9px] font-mono text-gray-500">your@email.com</span>
                             </div>
-                            <div className="gen-row-3r rounded-sm bg-gray-700 py-1 text-center text-[9px] font-mono font-medium text-white opacity-0">
+                            <div className="gen-row-3r rounded-sm py-1 text-center text-[9px] font-mono font-medium text-gray-900 opacity-0" style={{ background: '#00EA64' }}>
                               Join Waitlist
                             </div>
-                            <p className="gen-row-4r mt-1.5 text-center text-[8px] font-mono text-gray-500 opacity-0">237 people ahead of you</p>
+                            <p className="gen-row-4r mt-1.5 text-center text-[8px] font-mono text-green-400/60 opacity-0">237 people ahead of you</p>
                           </div>
                         </div>
                       </div>
@@ -205,7 +205,7 @@ export default function HeroHome() {
             </div>
 
             <p className="mt-4 text-center text-sm text-gray-500" data-aos="fade-up" data-aos-delay={800}>
-              Same script tag. Two completely different sites. The form adapts automatically.
+              Same script tag. Stripe or HackerRank — the form adapts automatically.
             </p>
           </div>
         </div>
