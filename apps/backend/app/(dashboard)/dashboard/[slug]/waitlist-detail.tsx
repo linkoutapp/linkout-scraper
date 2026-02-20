@@ -386,15 +386,14 @@ function NoSignupsYet({ project }: { project: Project }) {
             Waitlist ID
           </span>
           <span className="flex-1 px-4 py-3 text-sm text-gray-900 font-medium">{project.slug}</span>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => copyToClipboard(project.slug, 'id')}
-            className="hover:opacity-70" style={{ color: '#1C1B18' }}
+            className="flex items-center gap-1.5 px-4 py-3 text-sm font-medium hover:bg-gray-50 transition-colors border-l border-gray-200"
+            style={{ color: '#1C1B18' }}
           >
             {copied ? 'Copied!' : 'Copy'}
             <Copy className="h-3.5 w-3.5" />
-          </Button>
+          </button>
         </div>
 
         {/* Action links */}
@@ -406,12 +405,13 @@ function NoSignupsYet({ project }: { project: Project }) {
         <p className="text-sm mt-6 mb-3" style={{ color: '#1C1B18' }}>Or share your waitlist</p>
         <div className="w-full rounded-lg border border-gray-200 flex items-center overflow-hidden">
           <span className="flex-1 px-4 py-3 text-sm text-gray-600 truncate">{shareUrl}</span>
-          <Button
+          <button
             onClick={() => copyToClipboard(shareUrl, 'url')}
-            className="text-white hover:opacity-90 rounded-none px-5 py-3" style={{ background: '#1C1B18' }}
+            className="text-white text-sm font-medium hover:opacity-90 px-5 py-3 whitespace-nowrap"
+            style={{ background: '#1C1B18' }}
           >
             {urlCopied ? 'Copied!' : 'Copy URL'}
-          </Button>
+          </button>
         </div>
       </div>
     </div>
