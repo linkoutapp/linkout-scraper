@@ -8,6 +8,7 @@ import { ExportButton } from './export-button';
 import { updateProject, deleteProject } from '../actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 
 type Tab = 'signups' | 'widget' | 'settings';
 type SignupSubTab = 'all' | 'import-export';
@@ -58,10 +59,10 @@ export function WaitlistDetail({
           {/* Sub-tabs + search + actions */}
           <div className="px-8 pt-4 pb-3 flex items-center justify-between">
             <div className="flex gap-4">
-              <SubTabButton active={subTab === 'all'} onClick={() => { setSubTab('all'); setSelected(new Set()); }}>
+              <SubTabButton active={subTab === 'all'} onClick={() => setSubTab('all')}>
                 All Signups
               </SubTabButton>
-              <SubTabButton active={subTab === 'import-export'} onClick={() => { setSubTab('import-export'); setSelected(new Set()); }}>
+              <SubTabButton active={subTab === 'import-export'} onClick={() => setSubTab('import-export')}>
                 Import and Export
               </SubTabButton>
             </div>
@@ -229,17 +230,9 @@ export function WaitlistDetail({
                     New signups on your waitlist will receive an email containing their referral link and waitlist status.
                   </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer mt-2">
-                  <input type="hidden" name="emailNewSignups" value="false" />
-                  <input
-                    type="checkbox"
-                    name="emailNewSignups"
-                    defaultChecked={project.emailNewSignups}
-                    value="true"
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1C1B18]"></div>
-                </label>
+                <div className="mt-2">
+                  <EmailSwitch name="emailNewSignups" defaultChecked={project.emailNewSignups} />
+                </div>
               </div>
 
               {/* Verify Signups by Email */}
@@ -250,17 +243,9 @@ export function WaitlistDetail({
                     New signups on your waitlist will receive a verification email. Verification status will be shown in any CSV export.
                   </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer mt-2">
-                  <input type="hidden" name="verifySignups" value="false" />
-                  <input
-                    type="checkbox"
-                    name="verifySignups"
-                    defaultChecked={project.verifySignups}
-                    value="true"
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#1C1B18]"></div>
-                </label>
+                <div className="mt-2">
+                  <EmailSwitch name="verifySignups" defaultChecked={project.verifySignups} />
+                </div>
               </div>
 
               <Button type="submit">
@@ -415,6 +400,16 @@ function NoSignupsYet({ project }: { project: Project }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function EmailSwitch({ name, defaultChecked }: { name: string; defaultChecked: boolean }) {
+  const [checked, setChecked] = useState(defaultChecked);
+  return (
+    <>
+      <input type="hidden" name={name} value={checked ? 'on' : 'off'} />
+      <Switch checked={checked} onCheckedChange={setChecked} />
+    </>
   );
 }
 

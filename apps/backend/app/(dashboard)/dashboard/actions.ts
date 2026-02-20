@@ -74,8 +74,8 @@ export async function updateProject(formData: FormData) {
   const updates: Record<string, any> = {};
   if (name && name.length > 0) updates.name = name;
   if (waitlistUrl !== undefined) updates.waitlistUrl = waitlistUrl;
-  if (emailNewSignupsRaw !== null) updates.emailNewSignups = emailNewSignupsRaw === 'true';
-  if (verifySignupsRaw !== null) updates.verifySignups = verifySignupsRaw === 'true';
+  if (emailNewSignupsRaw !== null) updates.emailNewSignups = emailNewSignupsRaw === 'on' || emailNewSignupsRaw === 'true';
+  if (verifySignupsRaw !== null) updates.verifySignups = verifySignupsRaw === 'on' || verifySignupsRaw === 'true';
 
   if (Object.keys(updates).length > 0) {
     await db.update(projects).set(updates).where(eq(projects.id, projectId));
