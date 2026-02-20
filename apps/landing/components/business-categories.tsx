@@ -32,7 +32,7 @@ export default function BusinessCategories() {
               </ul>
               <a
                 className="btn w-full bg-white text-gray-800 shadow-sm hover:bg-gray-50 border border-gray-200"
-                href="https://w8list-backend-production.up.railway.app/dashboard"
+                href="https://w8list-backend-production.up.railway.app/sign-up"
               >
                 Get Started
               </a>
@@ -57,7 +57,7 @@ export default function BusinessCategories() {
               <a
                 className="btn w-full text-white shadow-sm hover:opacity-90"
                 style={{ background: '#1C1B18' }}
-                href="https://w8list-backend-production.up.railway.app/dashboard"
+                href="https://w8list-backend-production.up.railway.app/sign-up"
               >
                 Start Free, Upgrade Later
               </a>

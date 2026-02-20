@@ -35,10 +35,18 @@ export default function Header() {
             </li>
             <li>
               <a
-                href="https://w8list-backend-production.up.railway.app/dashboard"
+                href="https://w8list-backend-production.up.railway.app/sign-in"
+                className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+              >
+                Log In
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://w8list-backend-production.up.railway.app/sign-up"
                 className="btn-sm text-white shadow-sm hover:opacity-90" style={{ background: '#1C1B18' }}
               >
-                Get Started
+                Sign Up Free
               </a>
             </li>
           </ul>
@@ -93,11 +101,20 @@ export default function Header() {
               </li>
               <li>
                 <a
-                  href="#demo"
+                  href="https://w8list-backend-production.up.railway.app/sign-in"
+                  className="block text-sm font-medium text-gray-600 transition hover:text-gray-900"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Log In
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://w8list-backend-production.up.railway.app/sign-up"
                   className="btn-sm inline-block text-center text-white shadow-sm hover:opacity-90" style={{ background: '#1C1B18' }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Get Started
+                  Sign Up Free
                 </a>
               </li>
             </ul>

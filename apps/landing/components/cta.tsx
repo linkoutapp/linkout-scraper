@@ -40,7 +40,7 @@ export default function Cta() {
               <a
                 className="btn group mb-4 w-full text-white shadow-sm hover:opacity-90 sm:mb-0 sm:w-auto"
                 style={{ background: '#1C1B18' }}
-                href="https://w8list-backend-production.up.railway.app/dashboard"
+                href="https://w8list-backend-production.up.railway.app/sign-up"
               >
                 <span className="relative inline-flex items-center">
                   Start Collecting Signups{" "}
