@@ -152,24 +152,13 @@ export function WaitlistDetail({
             <p className="text-sm text-gray-500 mb-4">
               This is how the widget will look on your site.
             </p>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', maxWidth: 400 }}>
-                <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 rounded-md border border-gray-300 px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15"
-                    readOnly
-                  />
-                  <button
-                    type="button"
-                    className="whitespace-nowrap rounded-md px-5 py-2.5 text-sm font-medium text-white"
-                    style={{ background: '#111827' }}
-                  >
-                    Join Waitlist
-                  </button>
-                </form>
-              </div>
+            <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+              <iframe
+                src={`/waitlist/${project.slug}?embed=true`}
+                className="w-full border-none"
+                style={{ minHeight: 360, maxWidth: 400 }}
+                title="Widget Preview"
+              />
             </div>
           </div>
         </div>

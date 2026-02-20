@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export function WaitlistForm({ slug }: { slug: string }) {
+  useEffect(() => {
+    function postHeight() {
+      if (window.parent !== window) {
+        window.parent.postMessage(
+          { type: 'w8list-resize', slug, height: document.body.scrollHeight },
+          '*'
+        );
+      }
+    }
+    postHeight();
+    const observer = new MutationObserver(postHeight);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    return () => observer.disconnect();
+  }, [slug]);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');

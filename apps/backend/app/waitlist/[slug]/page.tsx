@@ -4,8 +4,16 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { WaitlistForm } from './waitlist-form';
 
-export default async function WaitlistPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function WaitlistPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ embed?: string }>;
+}) {
   const { slug } = await params;
+  const { embed } = await searchParams;
+  const isEmbed = embed === 'true';
 
   const project = await db
     .select({ id: projects.id, name: projects.name, slug: projects.slug })
@@ -14,6 +22,21 @@ export default async function WaitlistPage({ params }: { params: Promise<{ slug:
     .limit(1);
 
   if (project.length === 0) notFound();
+
+  if (isEmbed) {
+    return (
+      <div className="p-4" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-bold text-gray-900">{project[0].name}</h2>
+          <p className="text-xs text-gray-500 mt-1">Join the waitlist to get early access.</p>
+        </div>
+        <WaitlistForm slug={project[0].slug} />
+        <p className="text-center text-[10px] text-gray-400 mt-4">
+          Powered by <span className="font-semibold">w8list</span>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
