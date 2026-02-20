@@ -162,36 +162,36 @@ export default function HeroHome() {
                     </div>
 
                     {/* RIGHT: HackerRank-style — dark bg, green accents, sharp edges */}
-                    <div className="overflow-hidden rounded-lg border border-gray-700/60" style={{ background: '#1a1a2e' }}>
-                      <div className="flex items-center gap-1.5 border-b border-gray-700/40 px-3 py-2" style={{ background: '#16213e' }}>
+                    <div className="overflow-hidden rounded-lg border border-gray-700/60" style={{ background: '#191919' }}>
+                      <div className="flex items-center gap-1.5 border-b border-gray-700/40 px-3 py-2" style={{ background: '#2d2d2d' }}>
                         <span className="h-2 w-2 rounded-full bg-red-500/60" />
                         <span className="h-2 w-2 rounded-full bg-yellow-500/60" />
                         <span className="h-2 w-2 rounded-full bg-green-500/60" />
-                        <span className="ml-2 flex-1 rounded-sm px-2 py-0.5 text-center text-[9px] font-mono text-green-400/70" style={{ background: '#0f3460' }}>hackerrank.com</span>
+                        <span className="ml-2 flex-1 rounded-sm px-2 py-0.5 text-center text-[9px] font-mono text-green-400/70" style={{ background: '#1e1e1e' }}>hackerrank.com</span>
                       </div>
                       <div className="px-5 py-5">
                         <div className="mb-5 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 rounded-sm" style={{ background: '#00EA64' }} />
+                            <div className="h-5 w-5 rounded-sm" style={{ background: '#32C766' }} />
                             <span className="text-xs font-bold font-mono text-green-400">HackerRank</span>
                           </div>
                           <div className="flex gap-2">
-                            <div className="h-1.5 w-10 rounded-sm" style={{ background: '#0f3460' }} />
-                            <div className="h-1.5 w-8 rounded-sm" style={{ background: '#0f3460' }} />
+                            <div className="h-1.5 w-10 rounded-sm" style={{ background: '#1e1e1e' }} />
+                            <div className="h-1.5 w-8 rounded-sm" style={{ background: '#1e1e1e' }} />
                           </div>
                         </div>
                         <div className="mb-5 text-center">
-                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-sm" style={{ background: '#0f3460' }} />
-                          <div className="mx-auto h-1.5 w-32 rounded-sm" style={{ background: '#16213e' }} />
+                          <div className="mx-auto mb-2 h-2.5 w-44 rounded-sm" style={{ background: '#1e1e1e' }} />
+                          <div className="mx-auto h-1.5 w-32 rounded-sm" style={{ background: '#2d2d2d' }} />
                         </div>
                         {/* Generative form — dark, green accent, staggered reveal */}
                         <div className="demo-form-right mx-auto max-w-[240px] opacity-0">
-                          <div className="rounded-lg border border-gray-700/60 p-3" style={{ background: '#16213e' }}>
+                          <div className="rounded-lg border border-gray-700/60 p-3" style={{ background: '#2d2d2d' }}>
                             <p className="gen-row-1r mb-2 text-center text-[10px] font-mono font-semibold text-green-400 opacity-0">Join the waitlist</p>
-                            <div className="gen-row-2r mb-1.5 rounded-sm border border-gray-600/40 px-3 py-1 opacity-0" style={{ background: '#1a1a2e' }}>
+                            <div className="gen-row-2r mb-1.5 rounded-sm border border-gray-600/40 px-3 py-1 opacity-0" style={{ background: '#191919' }}>
                               <span className="block text-center text-[9px] font-mono text-gray-500">your@email.com</span>
                             </div>
-                            <div className="gen-row-3r rounded-sm py-1 text-center text-[9px] font-mono font-medium text-gray-900 opacity-0" style={{ background: '#00EA64' }}>
+                            <div className="gen-row-3r rounded-sm py-1 text-center text-[9px] font-mono font-medium text-gray-900 opacity-0" style={{ background: '#32C766' }}>
                               Join Waitlist
                             </div>
                             <p className="gen-row-4r mt-1.5 text-center text-[8px] font-mono text-green-400/60 opacity-0">237 people ahead of you</p>
