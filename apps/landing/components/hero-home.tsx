@@ -211,5 +211,24 @@ export default function HeroHome() {
         </div>
       </div>
     </section>
+
+    {/* Test embed section */}
+    <section className="py-24 bg-gray-50">
+      <div className="mx-auto max-w-2xl px-6 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">See it in action</h2>
+        <p className="text-lg text-gray-600 mb-12">
+          This waitlist form automatically detected our landing page's design system
+        </p>
+        
+        {/* Test embed script */}
+        <div className="flex justify-center">
+          <script 
+            src="https://w8list-backend-production.up.railway.app/embed.js" 
+            data-project="test"
+            async
+          />
+        </div>
+      </div>
+    </section>
   );
 }
