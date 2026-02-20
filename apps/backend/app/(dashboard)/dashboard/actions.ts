@@ -5,7 +5,6 @@ import { db } from '@/lib/db/drizzle';
 import { projects, signups } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 import crypto from 'crypto';
 
 function generateSlug(name: string): string {
@@ -34,18 +33,12 @@ export async function createProject(formData: FormData) {
 
   const slug = generateSlug(name.trim());
 
-  const headersList = await headers();
-  const host = headersList.get('host') || 'localhost:3001';
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const waitlistUrl = `${protocol}://${host}/waitlist/${slug}`;
-
   const [project] = await db
     .insert(projects)
     .values({
       userId,
       name: name.trim(),
       slug,
-      waitlistUrl,
       spotsSkippedOnReferral,
       emailNewSignups,
       verifySignups,

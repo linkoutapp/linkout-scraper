@@ -487,7 +487,7 @@ function NoSignupsYet({ project }: { project: Project }) {
   const [copied, setCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
 
-  const shareUrl = project.waitlistUrl || `${window.location.origin}/waitlist/${project.slug}`;
+  const shareUrl = `${window.location.origin}/waitlist/${project.slug}`;
 
   function copyToClipboard(text: string, type: 'id' | 'url') {
     navigator.clipboard.writeText(text);
