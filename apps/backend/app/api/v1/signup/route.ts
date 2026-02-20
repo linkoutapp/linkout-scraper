@@ -3,7 +3,6 @@ import { db } from '@/lib/db/drizzle';
 import { projects, signups } from '@/lib/db/schema';
 import { eq, count } from 'drizzle-orm';
 import crypto from 'crypto';
-import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/email';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -83,27 +82,30 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // Send emails (non-blocking)
+    // Send emails (non-blocking, dynamic import to avoid build-time Resend init)
     const baseUrl = `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`;
     const waitlistUrl = proj.waitlistUrl || `${baseUrl}/waitlist/${proj.slug}`;
 
-    if (proj.emailNewSignups) {
-      sendWelcomeEmail({
-        to: email,
-        projectName: proj.name,
-        position,
-        referralCode,
-        waitlistUrl,
-      });
-    }
-
-    if (proj.verifySignups && verificationToken) {
-      sendVerificationEmail({
-        to: email,
-        projectName: proj.name,
-        verificationToken,
-        baseUrl,
-      });
+    if (proj.emailNewSignups || (proj.verifySignups && verificationToken)) {
+      import('@/lib/email').then(({ sendWelcomeEmail, sendVerificationEmail }) => {
+        if (proj.emailNewSignups) {
+          sendWelcomeEmail({
+            to: email,
+            projectName: proj.name,
+            position,
+            referralCode,
+            waitlistUrl,
+          });
+        }
+        if (proj.verifySignups && verificationToken) {
+          sendVerificationEmail({
+            to: email,
+            projectName: proj.name,
+            verificationToken,
+            baseUrl,
+          });
+        }
+      }).catch((err) => console.error('Email import error:', err));
     }
 
     return NextResponse.json({
