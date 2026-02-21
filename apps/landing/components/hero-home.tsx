@@ -37,6 +37,13 @@ export default function HeroHome() {
               >
                 Our AI reads your site&apos;s design system and generates a waitlist widget that looks like you built it. Colors, fonts, spacing, dark mode. All automatic.
               </p>
+              <p
+                className="mb-8 text-sm font-medium text-gray-600"
+                data-aos="zoom-y-out"
+                data-aos-delay={350}
+              >
+                Stop losing early adopters. Every day without a waitlist is signups you&apos;ll never get back. Takes 60 seconds. Free, no card needed.
+              </p>
               <div className="relative before:absolute before:inset-0 before:border-y before:[border-image:linear-gradient(to_right,transparent,var(--border-line,#cbd5e1),transparent)1]">
                 <div
                   className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center"
@@ -49,7 +56,7 @@ export default function HeroHome() {
                     href="https://w8list-backend-production.up.railway.app/sign-up"
                   >
                     <span className="relative inline-flex items-center">
-                      Sign Up Free{" "}
+                      Start Collecting Signups{" "}
                       <span className="ml-1 tracking-normal text-gray-400 transition-transform group-hover:translate-x-0.5">
                         -&gt;
                       </span>
@@ -59,7 +66,7 @@ export default function HeroHome() {
                     className="btn w-full bg-white text-gray-800 shadow-sm hover:bg-gray-50 sm:ml-4 sm:w-auto"
                     href="#how-it-works"
                   >
-                    See How It Works
+                    See the Demo
                   </a>
                 </div>
               </div>
@@ -208,25 +215,6 @@ export default function HeroHome() {
               Same script tag. Stripe or HackerRank — the form adapts automatically.
             </p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    {/* Test embed section */}
-    <section className="py-24 bg-gray-50">
-      <div className="mx-auto max-w-2xl px-6 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">See it in action</h2>
-        <p className="text-lg text-gray-600 mb-12">
-          This waitlist form automatically detected our landing page's design system
-        </p>
-        
-        {/* Test embed script */}
-        <div className="flex justify-center">
-          <script 
-            src="https://w8list-backend-production.up.railway.app/embed.js" 
-            data-project="test"
-            async
-          />
         </div>
       </div>
     </section>

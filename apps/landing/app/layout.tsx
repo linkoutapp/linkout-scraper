@@ -18,17 +18,26 @@ export const metadata = {
     canonical: "https://w8list.com",
   },
   openGraph: {
-    title: "w8list — Waitlist forms that match your site automatically",
-    description: "One script tag. Your waitlist form auto-adapts to your site's UI — colors, fonts, dark mode, everything. Free to start.",
+    title: "w8list — Adaptive waitlist forms that match any site",
+    description: "Stop losing early adopters. Every day without a waitlist is signups you'll never get back. Takes 60 seconds. Free, no card needed.",
     url: "https://w8list.com",
     siteName: "w8list",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/images/og.png",
+        width: 1200,
+        height: 630,
+        alt: "w8list — Adaptive waitlist forms that match any site",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "w8list — Adaptive waitlist forms",
-    description: "One script tag. Your waitlist form auto-adapts to your site's UI — colors, fonts, dark mode, everything.",
+    description: "Stop losing early adopters. Every day without a waitlist is signups you'll never get back. Takes 60 seconds. Free, no card needed.",
+    images: ["/images/og.png"],
   },
   robots: {
     index: true,

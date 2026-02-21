@@ -219,33 +219,9 @@
 
 :root {
   --border-line: #cbd5e1;
-  
-  /* Design tokens for w8list detection */
-  --primary-color: #635BFF;
-  --secondary-color: #f3f4f6;
-  --accent-color: #10b981;
-  --background-color: #ffffff;
-  --surface-color: #f9fafb;
-  --text-color: #111827;
-  --font-family: 'Inter', system-ui, sans-serif;
-  --font-size-base: 16px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
 }
 .dark {
   --border-line: #334155;
-  
-  /* Dark mode design tokens */
-  --primary-color: #7c3aed;
-  --secondary-color: #1f2937;
-  --accent-color: #34d399;
-  --background-color: #111827;
-  --surface-color: #1f2937;
-  --text-color: #f9fafb;
 }
 
 /* Rotating shiny border */
