@@ -15,12 +15,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const allSignups = await getSignups(project.id);
   const count = await getSignupCount(project.id);
 
-  const headersList = await headers();
-  const host = headersList.get('host') || 'localhost:3001';
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const baseUrl = `${protocol}://${host}`;
-
-  const embedCode = `<script src="${baseUrl}/embed.js" data-project="${project.slug}"></script>`;
+  // Always use production Railway URL for embed code so it works everywhere
+  const productionBaseUrl = 'https://w8list-backend-production.up.railway.app';
+  const embedCode = `<script src="${productionBaseUrl}/embed.js" data-project="${project.slug}"></script>`;
 
   return (
     <WaitlistDetail

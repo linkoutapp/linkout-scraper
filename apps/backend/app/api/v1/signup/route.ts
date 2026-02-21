@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
       .returning();
 
     // Send emails (non-blocking, dynamic import to avoid build-time Resend init)
-    const baseUrl = `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`;
-    const waitlistUrl = proj.waitlistUrl || `${baseUrl}/waitlist/${proj.slug}`;
+    const productionBaseUrl = 'https://w8list-backend-production.up.railway.app';
+    const waitlistUrl = proj.waitlistUrl || `${productionBaseUrl}/waitlist/${proj.slug}`;
 
     if (proj.emailNewSignups || (proj.verifySignups && verificationToken)) {
       import('@/lib/email').then(({ sendWelcomeEmail, sendVerificationEmail }) => {
