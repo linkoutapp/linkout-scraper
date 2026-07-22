@@ -1,61 +1,57 @@
-# Linkout Scraper
+<div align="center">
+  <a href="https://github.com/linkoutapp/brand" aria-label="Linkout brand assets">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg">
+      <img src="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg" alt="Linkout Scraper" width="144">
+    </picture>
+  </a>
 
-Linkout 2 is a local Node.js library and read-only Claude Code/Codex plugin for inspecting LinkedIn through a visible, already-authenticated Chrome session on macOS.
+  <h1>Linkout Scraper</h1>
 
-It centralizes the 2026 LinkedIn selectors used by profiles, connection status, existing connections, message history, activity, guarded account actions, and Sales Navigator. The initial AI plugin exposes read-only operations only.
+  <p><strong>Local LinkedIn tooling through your visible, signed-in Chrome.</strong></p>
+  <p>Read-only Codex and Claude tools by default. Guarded actions when explicitly enabled.</p>
 
-## Important limitation
+  <p>
+    <img alt="Node.js 22+" src="https://img.shields.io/badge/Node.js-22%2B-A143DA?labelColor=170460">
+    <img alt="macOS" src="https://img.shields.io/badge/platform-macOS-A143DA?labelColor=170460">
+    <img alt="Local Chrome" src="https://img.shields.io/badge/browser-local%20Chrome-A143DA?labelColor=170460">
+    <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-A143DA?labelColor=170460"></a>
+  </p>
+</div>
 
-LinkedIn says third-party software that scrapes or automates its website is prohibited. Running locally, using a persistent browser profile, adding delays, or setting daily limits does not guarantee compliance or prevent an account restriction. Linkout does not spoof fingerprints, hide automation, bypass CAPTCHA/checkpoints, use proxies, or claim to be undetectable.
+Linkout attaches to an existing Chrome session on your Mac. It keeps authentication, browsing, and network traffic on your machine while providing maintained LinkedIn selectors, bounded waits, page-state checks, and explicit mutation controls.
 
-See [LinkedIn's automated-activity policy](https://www.linkedin.com/help/linkedin/answer/a1340567/automated-activity-on-linkedin?lang=en) and [User Agreement](https://www.linkedin.com/legal/user-agreement) before use.
+## Quick start
 
-## Requirements
-
-- macOS and stable Google Chrome
-- Node.js 22 or newer
-- the user's own machine and network connection
-- a visible persistent Chrome profile in which the user signs in manually
-- Chrome DevTools available only at `http://127.0.0.1:9222`
-
-Chrome 136 and newer ignore `--remote-debugging-port` for the default Chrome data directory. Use a dedicated persistent directory and reuse that same directory every time:
-
-```sh
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --remote-debugging-port=9222 \
-  --user-data-dir="/absolute/path/to/persistent/linkout-chrome-profile"
-```
-
-Open LinkedIn in that Chrome window and sign in manually. Do not commit or share the profile directory. Chrome documents the custom-directory requirement in [its remote-debugging security notice](https://developer.chrome.com/blog/remote-debugging-port).
-
-## Install and verify
+Requirements: macOS, Node.js 22+, stable Google Chrome, and a dedicated persistent Chrome profile.
 
 ```sh
 npm install
-npm test
-python3 /path/to/plugin-creator/scripts/validate_plugin.py .
-claude plugin validate .
+
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=9222 \
+  --user-data-dir="/absolute/path/to/linkout-chrome-profile"
 ```
 
-`npm audit` is expected to report zero known vulnerabilities for the committed lockfile.
-
-## Claude Code plugin
-
-From the repository root:
+Sign in to LinkedIn manually in that Chrome window, then start the local MCP server:
 
 ```sh
-claude --plugin-dir .
+npm start:mcp
 ```
 
-The plugin is named `linkout-linkedin-read`; its skill is namespaced as `linkout-linkedin-read:linkedin-read`.
+Use the repository directly as a Claude Code plugin with `claude --plugin-dir .`, or load its `.codex-plugin/plugin.json` manifest in Codex.
 
-## Codex plugin
+## What it includes
 
-The repository root contains `.codex-plugin/plugin.json`. Install or load this directory using the Codex plugin workflow. The manifest points to the shared `linkedin-read` skill and local stdio MCP server.
+| Surface | Capabilities |
+| --- | --- |
+| Read-only MCP | Profiles, connection status, connections, message threads, posts, reactions, and comments |
+| CommonJS library | Read services plus guarded connect, message, like, endorse, and Sales Navigator actions |
+| Local runtime | Existing-Chrome attachment, semantic selector fallbacks, bounded timing, action policy, and audit ledger |
 
-No marketplace entry is created automatically.
-
-## Read-only MCP tools
+<details>
+<summary>Read-only MCP tools</summary>
 
 - `linkedin_get_profile`
 - `linkedin_get_connection_status`
@@ -66,18 +62,14 @@ No marketplace entry is created automatically.
 - `linkedin_list_comments`
 - `linkedin_list_posts_with_comments`
 
-These tools do not type, send, connect, invite, like, endorse, submit credentials or 2FA, or change Sales Navigator filters.
+</details>
 
-## CommonJS library API
-
-The supported `services` and `tools` are available through the package entry point:
+Library mutations are disabled by default. Every action requires `confirm: true` and an explicitly enabled local action policy.
 
 ```js
 const Linkout = require("linkout-scraper");
 
-const browser = await Linkout.tools.connectLocalChrome({
-  browserURL: "http://127.0.0.1:9222",
-});
+const browser = await Linkout.tools.connectLocalChrome();
 const pages = await browser.pages();
 const page = pages.find((candidate) => candidate.url().includes("linkedin.com"));
 
@@ -86,28 +78,19 @@ const result = await Linkout.services.visit(page, null, {
 });
 ```
 
-Sign in and complete verification manually in visible Chrome. Credential, 2FA, and browser-fingerprint mutation APIs are not exposed.
+## Safety
 
-Connect, message, like, endorse, and Sales Navigator filter services remain library APIs, but they require `confirm: true` and an explicitly enabled local action policy. Their default policy disables every mutation. They are not MCP tools in this release.
+Linkout does not submit credentials or 2FA, spoof browser fingerprints, bypass CAPTCHA or checkpoints, use proxies, or promise undetectable automation. Security challenges, restrictions, automation warnings, and unexpected modals stop operations.
 
-## Device and interaction behavior
+LinkedIn prohibits unauthorized scraping and automation. Review its [automated-activity policy](https://www.linkedin.com/help/linkedin/answer/a1340567/automated-activity-on-linkedin?lang=en) and [User Agreement](https://www.linkedin.com/legal/user-agreement) before use.
 
-- only loopback Chrome DevTools endpoints are accepted by default;
-- Chrome is connected, never launched or closed by the MCP server;
-- the native browser user agent, locale, timezone, viewport, and fingerprint are preserved;
-- ghost-cursor is used behind the visible input adapter, with native mouse fallback;
-- keyboard input is per-character with bounded delays;
-- login, checkpoint, CAPTCHA, automation warning, restriction, and unexpected modal states stop actions;
-- local ledgers contain operation metadata only, never messages, passwords, cookies, or 2FA codes.
+## Development
 
-## Live selector checks
+```sh
+npm test
+npm run test:live:read-only
+```
 
-The default test suite is offline and performs no LinkedIn actions. See [docs/live-smoke-tests.md](docs/live-smoke-tests.md) for the explicit, read-only live smoke workflow.
+The default suite is offline and performs no LinkedIn actions. The live smoke test is explicit and read-only; setup details are in [docs/live-smoke-tests.md](docs/live-smoke-tests.md).
 
-## Credential cleanup
-
-The old repository tracked an `.env` and executable credential examples. They have been removed from the current tree, but deletion does not erase Git history. Rotate any credential that was ever committed before using this branch.
-
-## License
-
-[MIT](LICENSE)
+Brand artwork is maintained in [linkoutapp/brand](https://github.com/linkoutapp/brand). Licensed under [MIT](LICENSE).
