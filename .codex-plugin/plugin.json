@@ -8,7 +8,7 @@
   },
   "homepage": "https://github.com/linkoutapp/linkout-scraper",
   "repository": "https://github.com/linkoutapp/linkout-scraper",
-  "license": "ISC",
+  "license": "MIT",
   "keywords": ["linkedin", "read-only", "local-browser", "mcp"],
   "skills": "./skills/",
   "mcpServers": {

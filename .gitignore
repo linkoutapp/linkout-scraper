@@ -3,3 +3,9 @@
 .vscode
 node_modules
 .worktrees/
+.env
+.env.*
+!.env.example
+.linkout/
+chrome-profile/
+*.jsonl

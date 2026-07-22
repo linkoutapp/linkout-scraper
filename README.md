@@ -1,108 +1,113 @@
-<p align="center">
-  <a href="">
-    <img  alt="logo" src="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg"  height="128" width="128" />
-  </a>
-</p>
+# Linkout Scraper
 
-<h1 align="center">Linkout Linkedin Scraper</h1>
+Linkout 2 is a local Node.js library and read-only Claude Code/Codex plugin for inspecting LinkedIn through a visible, already-authenticated Chrome session on macOS.
 
-<p align="center">
-  <a href="https://opensource.org/licenses/MIT" target="_blank">
-    <img alt="License: MIT License" src="https://img.shields.io/badge/License-MIT License-yellow.svg" />
-  </a>
-</p>
+It centralizes the 2026 LinkedIn selectors used by profiles, connection status, existing connections, message history, activity, guarded account actions, and Sales Navigator. The initial AI plugin exposes read-only operations only.
 
-Here you can find secure scraping using Puppeteer for different LinkedIn actions
+## Important limitation
 
-- [x] Login
-- [x] Connection Request
-- [x] Follow message
-- [x] Visit Profile
-- [x] Like posts
-- [x] Endorse Profile
+LinkedIn says third-party software that scrapes or automates its website is prohibited. Running locally, using a persistent browser profile, adding delays, or setting daily limits does not guarantee compliance or prevent an account restriction. Linkout does not spoof fingerprints, hide automation, bypass CAPTCHA/checkpoints, use proxies, or claim to be undetectable.
 
-## Install
+See [LinkedIn's automated-activity policy](https://www.linkedin.com/help/linkedin/answer/a1340567/automated-activity-on-linkedin?lang=en) and [User Agreement](https://www.linkedin.com/legal/user-agreement) before use.
+
+## Requirements
+
+- macOS and stable Google Chrome
+- Node.js 22 or newer
+- the user's own machine and network connection
+- a visible persistent Chrome profile in which the user signs in manually
+- Chrome DevTools available only at `http://127.0.0.1:9222`
+
+Chrome 136 and newer ignore `--remote-debugging-port` for the default Chrome data directory. Use a dedicated persistent directory and reuse that same directory every time:
 
 ```sh
-npm install linkout-scraper puppeteer-extra --save
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --remote-debugging-port=9222 \
+  --user-data-dir="/absolute/path/to/persistent/linkout-chrome-profile"
 ```
 
-## Setup
+Open LinkedIn in that Chrome window and sign in manually. Do not commit or share the profile directory. Chrome documents the custom-directory requirement in [its remote-debugging security notice](https://developer.chrome.com/blog/remote-debugging-port).
 
-- Get [LI_AT](https://youtu.be/H8BVdAIyFJM) - this token will be used to authenticate to user's LinkedIn profile.
+## Install and verify
 
-## Usage
+```sh
+npm install
+npm test
+python3 /path/to/plugin-creator/scripts/validate_plugin.py .
+claude plugin validate .
+```
 
-```javascript
+`npm audit` is expected to report zero known vulnerabilities for the committed lockfile.
+
+## Claude Code plugin
+
+From the repository root:
+
+```sh
+claude --plugin-dir .
+```
+
+The plugin is named `linkout-linkedin-read`; its skill is namespaced as `linkout-linkedin-read:linkedin-read`.
+
+## Codex plugin
+
+The repository root contains `.codex-plugin/plugin.json`. Install or load this directory using the Codex plugin workflow. The manifest points to the shared `linkedin-read` skill and local stdio MCP server.
+
+No marketplace entry is created automatically.
+
+## Read-only MCP tools
+
+- `linkedin_get_profile`
+- `linkedin_get_connection_status`
+- `linkedin_list_connections`
+- `linkedin_read_message_thread`
+- `linkedin_list_posts`
+- `linkedin_list_reactions`
+- `linkedin_list_comments`
+- `linkedin_list_posts_with_comments`
+
+These tools do not type, send, connect, invite, like, endorse, submit credentials or 2FA, or change Sales Navigator filters.
+
+## CommonJS library compatibility
+
+The historical `services` and `tools` names remain available:
+
+```js
 const Linkout = require("linkout-scraper");
-const puppeteer = require("puppeteer-extra");
-const dotenv = require("dotenv");
 
-dotenv.config();
+const browser = await Linkout.tools.connectLocalChrome({
+  browserURL: "http://127.0.0.1:9222",
+});
+const pages = await browser.pages();
+const page = pages.find((candidate) => candidate.url().includes("linkedin.com"));
 
-// add stealth plugin and use defaults (all evasion techniques)
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-puppeteer.use(StealthPlugin());
-
-(async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-  });
-  const page = await browser.newPage();
-  const cdp = await page.target().createCDPSession();
-
-  await page.setViewport({
-    width: 1440,
-    height: 900,
-  });
-
-  // add ghost-cursor for maximum safety
-  await Linkout.tools.loadCursor(page, false);
-
-  // remove webdriver detection
-  await page.evaluateOnNewDocument(() => {
-    delete navigator.__proto__.webdriver;
-  });
-
-  await Linkout.tools.setUserAgent(page, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36');
-
-  // Login with LinkedIn
-  await Linkout.services.login(page, cdp, {
-    cookie: LI_AT,
-  });
-
-  // Connect on LinkedIn
-  await Linkout.services.connect(page, cdp, {
-    message: "Hi {{firstName}}, let's connect!",
-    url: "https://www.linkedin.com/in/sai-adarsh/",
-  });
-
-  // Send a message on LinkedIn
-  await Linkout.services.message(page, cdp, {
-    message: "Hello, {{firstName}}!",
-    url: "https://www.linkedin.com/in/sai-adarsh/",
-  });
-
-  // Visit a LinkedIn profile
-  await Linkout.services.visit(page, cdp, {
-    url: "https://www.linkedin.com/in/sai-adarsh/",
-  });
-})();
+const result = await Linkout.services.visit(page, null, {
+  url: "https://www.linkedin.com/in/example/",
+});
 ```
 
-## Who made this project
+Cookie login, email/password login, 2FA submission, and user-agent overrides now return migration errors. Sign in and complete verification manually in visible Chrome.
 
-This project was made by [Linkout](https://linkout.space) - LinkedIn Outreach on Autopilot, and being maintained by [Sai Adarsh](https://github.com/sai-adarsh). Any contribution is welcomed!
+Connect, message, like, endorse, and Sales Navigator filter services remain library APIs, but they require `confirm: true` and an explicitly enabled local action policy. Their default policy disables every mutation. They are not MCP tools in this release.
 
-## 🤝 Contributing
+## Device and interaction behavior
 
-[Please check our Contribution guide to get started!](https://github.com/linkoutapp/linkout-scraper/blob/main/CONTRIBUTING.md)
+- only loopback Chrome DevTools endpoints are accepted by default;
+- Chrome is connected, never launched or closed by the MCP server;
+- the native browser user agent, locale, timezone, viewport, and fingerprint are preserved;
+- ghost-cursor is used behind the visible input adapter, with native mouse fallback;
+- keyboard input is per-character with bounded delays;
+- login, checkpoint, CAPTCHA, automation warning, restriction, and unexpected modal states stop actions;
+- local ledgers contain operation metadata only, never messages, passwords, cookies, or 2FA codes.
 
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/linkoutapp/linkout-scraper/issues?q=is%3Aopen).
+## Live selector checks
 
-- Fork the repository, Clone it on your device. That's it 🎉
-- Finally make a pull request :)
+The default test suite is offline and performs no LinkedIn actions. See [docs/live-smoke-tests.md](docs/live-smoke-tests.md) for the explicit, read-only live smoke workflow.
 
-## 📝 License
+## Credential cleanup
 
-This project is [MIT License](https://opensource.org/licenses/MIT) licensed.
+The old repository tracked an `.env` and executable credential examples. They have been removed from the current tree, but deletion does not erase Git history. Rotate any credential that was ever committed before using this branch.
+
+## License
+
+[MIT](LICENSE)

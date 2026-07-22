@@ -26,7 +26,7 @@
     "node": ">=22"
   },
   "author": "Sai-Adarsh <saiadarshsivakumar@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/linkoutapp/linkout-scraper.git"
