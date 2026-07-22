@@ -2,5 +2,4 @@
 .github
 .vscode
 node_modules
-test
 .worktrees/

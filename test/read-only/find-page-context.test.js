@@ -1,0 +1,45 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+
+const {
+  findPageContext,
+  findFirstSelector,
+} = require("../../lib/helpers/find-page-context");
+
+function context(matches = {}) {
+  return {
+    async $(selector) {
+      return matches[selector] || null;
+    },
+  };
+}
+
+test("findPageContext checks the page before child frames", async () => {
+  const page = Object.assign(context({ main: { id: "page" } }), {
+    frames: () => [context({ main: { id: "frame" } })],
+  });
+
+  assert.equal(await findPageContext(page, ["main"]), page);
+});
+
+test("findPageContext finds a matching child frame", async () => {
+  const frame = context({ main: { id: "frame" } });
+  const page = Object.assign(context(), { frames: () => [page, frame] });
+
+  assert.equal(await findPageContext(page, ["main"]), frame);
+});
+
+test("findFirstSelector returns candidates in priority order", async () => {
+  const target = context({ ".legacy": {}, '[role="main"]': {} });
+
+  assert.equal(
+    await findFirstSelector(target, ['[role="main"]', ".legacy"]),
+    '[role="main"]'
+  );
+});
+
+test("findPageContext returns null when no candidate matches", async () => {
+  const page = Object.assign(context(), { frames: () => [] });
+
+  assert.equal(await findPageContext(page, ["main"]), null);
+});
