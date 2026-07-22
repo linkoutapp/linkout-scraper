@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-test("CommonJS entry preserves every historical service and tool name", () => {
+test("CommonJS entry exports every supported service and tool name", () => {
   const linkout = require("../../lib/linkedin.service");
   assert.deepEqual(Object.keys(linkout.services).sort(), [
     "acceptedConnections",
@@ -10,8 +10,6 @@ test("CommonJS entry preserves every historical service and tool name", () => {
     "connectionStatus",
     "endorse",
     "like",
-    "login",
-    "loginWithEmail",
     "message",
     "messagesFromChat",
     "posts",
@@ -26,6 +24,16 @@ test("CommonJS entry preserves every historical service and tool name", () => {
   }
   assert.equal(typeof linkout.tools.loadCursor, "function");
   assert.equal(typeof linkout.tools.setUserAgent, "function");
+});
+
+test("removed login automation is not exposed by the 2026 runtime", () => {
+  const linkout = require("../../lib/linkedin.service");
+  const selectors = require("../../lib/selectors");
+
+  assert.equal(Object.hasOwn(linkout.services, "login"), false);
+  assert.equal(Object.hasOwn(linkout.services, "loginWithEmail"), false);
+  assert.equal(Object.hasOwn(selectors.serviceWorkflows, "login"), false);
+  assert.equal(Object.hasOwn(selectors.serviceWorkflows, "loginWithEmail"), false);
 });
 
 test("CommonJS entry exports the safe 2026 infrastructure without connecting", () => {
