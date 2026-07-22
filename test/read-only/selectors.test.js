@@ -24,5 +24,10 @@ test("current semantic candidates precede legacy class fallbacks", () => {
   assert.equal(selectors.profile.root[0], "main");
   assert.match(selectors.connections.profileLinks[0], /href/);
   assert.match(selectors.messaging.conversation[0], /:has\(a\[href/);
+  assert.equal(
+    selectors.activity.cards[0],
+    ".feed-shared-update-v2[data-urn]"
+  );
   assert.match(selectors.activity.postLinks[0], /feed\/update/);
+  assert.ok(selectors.activity.time.includes(".update-components-actor__sub-description"));
 });
