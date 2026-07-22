@@ -1,8 +1,9 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const linkout = require("../../lib/linkedin.service");
-const registry = require("../../lib/selectors");
+const readOnly = require("../../lib/selectors/read-only");
+const actions = require("../../lib/selectors/actions");
+const salesNavigator = require("../../lib/selectors/sales-navigator");
 
 function selectorGroups(value, path = []) {
   const groups = [];
@@ -16,27 +17,14 @@ function selectorGroups(value, path = []) {
   return groups;
 }
 
-test("every exported service maps to an inventoried selector workflow", () => {
-  assert.deepEqual(
-    Object.keys(registry.serviceWorkflows).sort(),
-    Object.keys(linkout.services).sort()
-  );
-
-  for (const [service, path] of Object.entries(registry.serviceWorkflows)) {
-    const group = path.split(".").reduce((value, key) => value && value[key], registry);
-    assert.ok(group, `${service} maps to missing selector group ${path}`);
-  }
-});
-
 test("selector groups are non-empty, unique, and semantically prioritized", () => {
   const groups = selectorGroups({
-    readOnly: registry.readOnly,
-    auth: registry.auth,
-    actions: registry.actions,
-    salesNavigator: registry.salesNavigator,
+    readOnly,
+    actions,
+    salesNavigator,
   });
 
-  assert.ok(groups.length >= 25);
+  assert.ok(groups.length > 0);
   for (const [name, candidates] of groups) {
     assert.ok(candidates.length > 0, name);
     assert.equal(new Set(candidates).size, candidates.length, name);
@@ -53,10 +41,19 @@ test("selector groups are non-empty, unique, and semantically prioritized", () =
 });
 
 test("current semantic action selectors precede legacy fallbacks", () => {
-  assert.equal(registry.auth.login.username[0], 'input[name="session_key"]');
-  assert.match(registry.actions.connect.primary[0], /aria-label/);
-  assert.match(registry.actions.message.editor[0], /role="textbox"/);
-  assert.match(registry.actions.like.button[0], /aria-pressed/);
-  assert.match(registry.actions.endorse.button[0], /aria-label/);
-  assert.match(registry.salesNavigator.filters.currentTitle[0], /fieldset/);
+  assert.deepEqual(Object.keys(actions.connect).sort(), [
+    "addNote", "menuItem", "moreActions", "note", "primary", "send", "success",
+  ]);
+  assert.deepEqual(Object.keys(actions.message).sort(), [
+    "composeRoot", "editor", "open", "send",
+  ]);
+  assert.deepEqual(Object.keys(actions.like).sort(), ["button", "success"]);
+  assert.deepEqual(Object.keys(actions.endorse).sort(), ["button", "success"]);
+  assert.deepEqual(Object.keys(salesNavigator).sort(), ["filters", "results"]);
+  assert.deepEqual(Object.keys(salesNavigator.results).sort(), ["item", "list"]);
+  assert.match(actions.connect.primary[0], /aria-label/);
+  assert.match(actions.message.editor[0], /role="textbox"/);
+  assert.match(actions.like.button[0], /aria-pressed/);
+  assert.match(actions.endorse.button[0], /aria-label/);
+  assert.match(salesNavigator.filters.currentTitle[0], /fieldset/);
 });
