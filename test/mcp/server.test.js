@@ -27,3 +27,13 @@ test("server registers every definition and writes no diagnostic text to stdout"
   const source = fs.readFileSync(require.resolve("../../lib/mcp/server"), "utf8");
   assert.doesNotMatch(source, /console\.log|process\.stdout\.write/);
 });
+
+test("server registers against the installed stable MCP SDK and Zod", async () => {
+  const [{ McpServer }, zod] = await Promise.all([
+    import("@modelcontextprotocol/sdk/server/mcp.js"),
+    import("zod"),
+  ]);
+  const handlers = new Proxy({}, { get: () => async () => ({ content: [] }) });
+  const server = createMcpServer({ McpServer, z: zod.z || zod.default, handlers });
+  assert.equal(typeof server.connect, "function");
+});
