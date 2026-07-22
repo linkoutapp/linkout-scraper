@@ -114,3 +114,20 @@ test("message row limiting honors a zero count", () => {
     []
   );
 });
+
+test("message history propagates unexpected navigation failures", async () => {
+  const failure = new Error("navigation failed");
+  const page = {
+    async goto() {
+      throw failure;
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      messagesFromChat(page, null, {
+        user: "https://www.linkedin.com/messaging/thread/example/",
+      }),
+    failure
+  );
+});

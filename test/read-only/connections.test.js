@@ -62,3 +62,14 @@ test("connections return an empty list when the page root is absent", async () =
 
   assert.deepEqual(await acceptedConnections(page), []);
 });
+
+test("connections propagate unexpected navigation failures", async () => {
+  const failure = new Error("navigation failed");
+  const page = {
+    async goto() {
+      throw failure;
+    },
+  };
+
+  await assert.rejects(() => acceptedConnections(page), failure);
+});
