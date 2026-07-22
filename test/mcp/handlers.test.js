@@ -65,3 +65,28 @@ test("handler failures are structured and do not echo sensitive query values", a
   assert.equal(result.structuredContent.error.code, "SERVICE_UNAVAILABLE");
   assert.equal(JSON.stringify(result).includes("private"), false);
 });
+
+test("handlers stop when a challenge appears after service navigation", async () => {
+  const page = { stage: "before" };
+  const handlers = createHandlers({
+    services: {
+      async visit(activePage) {
+        activePage.stage = "after";
+        return { profileData: { fullName: "Hidden" } };
+      },
+    },
+    pageProvider: async () => page,
+    detectState: async (activePage) =>
+      activePage.stage === "after"
+        ? { state: "checkpoint", stop: true }
+        : { state: "authenticated", stop: false },
+  });
+
+  const result = await handlers.linkedin_get_profile({
+    url: "https://www.linkedin.com/in/ada/",
+  });
+
+  assert.equal(result.isError, true);
+  assert.equal(result.structuredContent.error.code, "PAGE_STATE_STOP");
+  assert.equal(JSON.stringify(result).includes("Hidden"), false);
+});
