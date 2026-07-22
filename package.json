@@ -1,26 +1,44 @@
 {
   "name": "linkout-scraper",
-  "version": "1.1.9",
-  "description": "",
-  "main": "dist/linkedin.service.js",
+  "version": "2.0.0",
+  "description": "Local, visible-browser LinkedIn reading tools for Node.js, Claude Code, and Codex.",
+  "main": "lib/linkedin.service.js",
+  "bin": {
+    "linkout-mcp": "bin/linkout-mcp.js"
+  },
+  "files": [
+    ".claude-plugin",
+    ".codex-plugin",
+    ".mcp.json",
+    "bin",
+    "config",
+    "lib",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel lib -d dist"
+    "test": "node --test",
+    "start:mcp": "node bin/linkout-mcp.js",
+    "test:live:read-only": "node --test test/live/read-only.smoke.js"
   },
-  "author": "",
-  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "author": "Sai-Adarsh <saiadarshsivakumar@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linkoutapp/linkout-scraper.git"
+  },
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.4",
-    "express": "^4.18.2",
-    "ghost-cursor": "^1.1.19",
-    "puppeteer": "^21.5.2",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "robotjs": "^0.6.0"
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "ghost-cursor": "^1.4.2",
+    "puppeteer-core": "^25.3.0",
+    "zod": "^4.4.3"
   },
-  "devDependencies": {
-    "babel-cli": "^6.26.0"
-  }
+  "overrides": {
+    "@hono/node-server": "2.0.11"
+  },
+  "devDependencies": {}
 }
