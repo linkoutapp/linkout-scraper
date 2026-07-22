@@ -1,0 +1,4 @@
+interface:
+  display_name: "LinkedIn Read"
+  short_description: "Read LinkedIn through visible local Chrome"
+  default_prompt: "Read the requested LinkedIn information without changing the account."

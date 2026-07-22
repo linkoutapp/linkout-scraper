@@ -1,0 +1,37 @@
+{
+  "name": "linkout-linkedin-read",
+  "version": "2.0.0",
+  "description": "Read LinkedIn through the user's visible local Chrome session.",
+  "author": {
+    "name": "Sai-Adarsh",
+    "email": "saiadarshsivakumar@gmail.com"
+  },
+  "homepage": "https://github.com/linkoutapp/linkout-scraper",
+  "repository": "https://github.com/linkoutapp/linkout-scraper",
+  "license": "MIT",
+  "keywords": ["linkedin", "read-only", "local-browser", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": {
+    "linkout-linkedin-read": {
+      "command": "node",
+      "args": ["./bin/linkout-mcp.js"],
+      "cwd": ".",
+      "env": {
+        "LINKOUT_CHROME_URL": "http://127.0.0.1:9222"
+      }
+    }
+  },
+  "interface": {
+    "displayName": "Linkout LinkedIn Read",
+    "shortDescription": "Read LinkedIn in visible local Chrome",
+    "longDescription": "Inspect profiles, existing connections, message history, posts, reactions, and comments through an already signed-in local Chrome tab. The plugin exposes read-only tools and stops on login or security challenges.",
+    "developerName": "Sai-Adarsh",
+    "category": "Productivity",
+    "capabilities": ["Read-only", "Local"],
+    "defaultPrompt": [
+      "Read this LinkedIn profile",
+      "Check this LinkedIn connection status",
+      "Read this existing LinkedIn message thread"
+    ]
+  }
+}
