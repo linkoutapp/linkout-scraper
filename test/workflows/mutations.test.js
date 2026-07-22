@@ -61,14 +61,21 @@ function composeRoot({
   recipient,
   editor,
   send,
+  sendMisses = 0,
   sentState,
   decoyProfilePaths = [],
   decoyRecipientIds = [],
 }) {
+  let remainingSendMisses = sendMisses;
   const controls = (selector) => {
+    const isSend = selector.includes("Send") || selector.includes("send-button");
+    if (isSend && remainingSendMisses > 0) {
+      remainingSendMisses -= 1;
+      return [];
+    }
     const value = selector.includes("contenteditable")
       ? editor
-      : selector.includes("Send") || selector.includes("send-button")
+      : isSend
         ? send
         : null;
     return Array.isArray(value) ? value : value ? [value] : [];
@@ -264,7 +271,7 @@ test("connect uses the 2026 semantic connect and success selectors", async () =>
   assert.deepEqual(policy.calls.at(-1), ["complete", "connect"]);
 });
 
-test("message types through the current contenteditable and verifies a sent event", async () => {
+test("message waits for Send hydration and verifies a sent event", async () => {
   const open = profileMessageElement({
     fullName: "Ada Lovelace",
     href: "https://www.linkedin.com/messaging/compose/?recipient=ada-id",
@@ -278,6 +285,7 @@ test("message types through the current contenteditable and verifies a sent even
     recipient: "ada-id",
     editor,
     send,
+    sendMisses: 1,
     sentState: { editorText: "", lastMessage: "Hello Ada" },
   });
   const page = mutationPage({
@@ -297,6 +305,8 @@ test("message types through the current contenteditable and verifies a sent even
     maxDelay: 0,
     clickDelay: 0,
     recipientTimeout: 0,
+    controlTimeout: 10,
+    controlInterval: 0,
     detectState: async () => {
       detectionCalls += 1;
       return detectionCalls === 1
