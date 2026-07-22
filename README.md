@@ -68,9 +68,9 @@ No marketplace entry is created automatically.
 
 These tools do not type, send, connect, invite, like, endorse, submit credentials or 2FA, or change Sales Navigator filters.
 
-## CommonJS library compatibility
+## CommonJS library API
 
-The historical `services` and `tools` names remain available:
+The supported `services` and `tools` are available through the package entry point:
 
 ```js
 const Linkout = require("linkout-scraper");
@@ -86,7 +86,7 @@ const result = await Linkout.services.visit(page, null, {
 });
 ```
 
-Cookie login, email/password login, 2FA submission, and user-agent overrides now return migration errors. Sign in and complete verification manually in visible Chrome.
+Sign in and complete verification manually in visible Chrome. Credential, 2FA, and browser-fingerprint mutation APIs are not exposed.
 
 Connect, message, like, endorse, and Sales Navigator filter services remain library APIs, but they require `confirm: true` and an explicitly enabled local action policy. Their default policy disables every mutation. They are not MCP tools in this release.
 
