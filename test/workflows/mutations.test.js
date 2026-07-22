@@ -18,12 +18,14 @@ function element(text = "") {
   };
 }
 
-function profileMessageElement({ fullName, href }) {
+function profileMessageElement({ fullName, href, headingLevel = "h1" }) {
   return {
     async evaluate(callback) {
       const card = {
         querySelector(selector) {
-          return selector === "h1" ? { textContent: fullName } : null;
+          return selector.split(",").includes(headingLevel)
+            ? { textContent: fullName }
+            : null;
         },
       };
       return callback({
@@ -92,6 +94,7 @@ function composeRoot({
           recipient === argument.recipient || decoyRecipientIds.includes(argument.recipient),
         headerPathMatch: profilePath === argument.path,
         headerRecipientMatch: recipient === argument.recipient,
+        ready: true,
       };
     },
   };
@@ -126,6 +129,33 @@ function messagingFrame(root) {
   };
 }
 
+test("compose recipient is ready before typing when its send button is disabled", async () => {
+  const visible = { getClientRects: () => [{}] };
+  const disabledSend = { ...visible, disabled: true };
+  const root = {
+    async evaluate(callback, argument) {
+      return callback({
+        getClientRects: visible.getClientRects,
+        querySelectorAll(selector) {
+          if (selector.includes("contenteditable")) return [visible];
+          if (selector.includes("send-button")) {
+            return selector.includes(":not(:disabled)") ? [] : [disabledSend];
+          }
+          return [];
+        },
+      }, argument);
+    },
+  };
+
+  const details = await message.inspectComposeRoot(
+    root,
+    "/in/shrinivaasan/",
+    "recipient-id"
+  );
+
+  assert.equal(details.ready, true);
+});
+
 function mutationPage(selectors = {}) {
   const calls = [];
   const page = {
@@ -155,8 +185,14 @@ function mutationPage(selectors = {}) {
       calls.push(["focus", selector]);
     },
     keyboard: {
+      async down(value) {
+        calls.push(["down", value]);
+      },
       async press(value) {
         calls.push(["press", value]);
+      },
+      async up(value) {
+        calls.push(["up", value]);
       },
       async type(value) {
         calls.push(["type", value]);
@@ -232,6 +268,7 @@ test("message types through the current contenteditable and verifies a sent even
   const open = profileMessageElement({
     fullName: "Ada Lovelace",
     href: "https://www.linkedin.com/messaging/compose/?recipient=ada-id",
+    headingLevel: "h2",
   });
   const calls = [];
   const editor = composeControl("ada-editor", calls);
@@ -245,10 +282,11 @@ test("message types through the current contenteditable and verifies a sent even
   });
   const page = mutationPage({
     main: element(),
-    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+    'main section:has(h2) a[href*="/messaging/compose/"][href*="recipient="]': open,
   });
   page.frameList = [messagingFrame(root)];
   const policy = recordingPolicy();
+  let detectionCalls = 0;
 
   const result = await message(page, { actionPolicy: policy }, {
     url: "https://www.linkedin.com/in/ada/",
@@ -259,9 +297,26 @@ test("message types through the current contenteditable and verifies a sent even
     maxDelay: 0,
     clickDelay: 0,
     recipientTimeout: 0,
+    detectState: async () => {
+      detectionCalls += 1;
+      return detectionCalls === 1
+        ? { state: "unknown", stop: true }
+        : { state: "authenticated", stop: false };
+    },
   });
 
   assert.equal(result.status, "sent");
+  assert.deepEqual(
+    page.calls.filter(([name]) => name === "goto").map(([, url]) => url),
+    [
+      "https://www.linkedin.com/in/ada/",
+      "https://www.linkedin.com/messaging/compose/?recipient=ada-id",
+    ]
+  );
+  assert.equal(
+    page.calls.some(([name, target]) => name === "click" && target === open),
+    false
+  );
   assert.equal(
     page.calls.filter(([name]) => name === "type").map(([, value]) => value).join(""),
     "Hello Ada"
