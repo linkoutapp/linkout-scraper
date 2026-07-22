@@ -164,8 +164,14 @@ test("typeVisible replaces an existing draft before typing", async () => {
       calls.push(["focus", selector]);
     },
     keyboard: {
+      async down(value) {
+        calls.push(["down", value]);
+      },
       async press(value) {
         calls.push(["press", value]);
+      },
+      async up(value) {
+        calls.push(["up", value]);
       },
       async type(value) {
         calls.push(["type", value]);
@@ -182,7 +188,9 @@ test("typeVisible replaces an existing draft before typing", async () => {
 
   assert.deepEqual(calls, [
     ["focus", "#editor"],
-    ["press", "Meta+A"],
+    ["down", "Meta"],
+    ["press", "KeyA"],
+    ["up", "Meta"],
     ["press", "Backspace"],
     ["type", "H"],
     ["type", "i"],
