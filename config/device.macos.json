@@ -1,9 +1,0 @@
-{
-  "platform": "darwin",
-  "browser": "Google Chrome",
-  "connectionMode": "existing-visible-browser",
-  "devtoolsHost": "127.0.0.1",
-  "devtoolsPort": 9222,
-  "preserveNativeFingerprint": true,
-  "allowRemoteDevtools": false
-}
