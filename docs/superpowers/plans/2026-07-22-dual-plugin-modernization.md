@@ -282,4 +282,5 @@
 4. Re-run the authorized read-only live smoke suite if the session remains healthy.
 5. Confirm every commit and repository config uses `Sai-Adarsh <saiadarshsivakumar@gmail.com>`.
 6. Use `github:yeet` to inspect scope, push `fix/read-only-selector-fixes`, and open a draft pull request with limitations and exact verification evidence.
-7. Report the PR URL and any non-blocking audit findings; do not claim “undetectable” or guaranteed account safety.
+7. Include a requirement-by-requirement Markdown to-do list in the PR description. Mark verified work with `- [x]`; leave incomplete or deliberately deferred work as `- [ ]` with a concise reason.
+8. Report the PR URL and any non-blocking audit findings; do not claim “undetectable” or guaranteed account safety.
