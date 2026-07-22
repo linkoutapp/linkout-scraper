@@ -62,6 +62,41 @@ test("clickVisible falls back to native mouse coordinates", async () => {
   ]);
 });
 
+test("clickVisible uses native coordinates for a child-frame target", async () => {
+  const calls = [];
+  const target = {
+    async boundingBox() {
+      return { x: 20, y: 30, width: 20, height: 10 };
+    },
+  };
+  const page = {
+    cursor: {
+      async click() {
+        assert.fail("ghost cursor must not click child-frame targets");
+      },
+    },
+    mouse: {
+      async move(x, y) {
+        calls.push(["move", x, y]);
+      },
+      async click(x, y) {
+        calls.push(["click", x, y]);
+      },
+    },
+  };
+
+  await clickVisible(page, target, {
+    detectState: readyState,
+    delay: 0,
+    preferNative: true,
+  });
+
+  assert.deepEqual(calls, [
+    ["move", 30, 35],
+    ["click", 30, 35],
+  ]);
+});
+
 test("typeVisible emits per-character native keyboard input", async () => {
   const calls = [];
   const page = {
@@ -87,6 +122,70 @@ test("typeVisible emits per-character native keyboard input", async () => {
     ["type", "H", { delay: 30 }],
     ["type", "i", { delay: 30 }],
     ["type", "!", { delay: 30 }],
+  ]);
+});
+
+test("typeVisible focuses the resolved child context", async () => {
+  const calls = [];
+  const context = {
+    async focus(selector) {
+      calls.push(["context-focus", selector]);
+    },
+  };
+  const page = {
+    async focus() {
+      assert.fail("top-level page must not be focused");
+    },
+    keyboard: {
+      async type(value) {
+        calls.push(["type", value]);
+      },
+    },
+  };
+
+  await typeVisible(page, "#editor", "Hi", {
+    context,
+    detectState: readyState,
+    minDelay: 0,
+    maxDelay: 0,
+  });
+
+  assert.deepEqual(calls, [
+    ["context-focus", "#editor"],
+    ["type", "H"],
+    ["type", "i"],
+  ]);
+});
+
+test("typeVisible replaces an existing draft before typing", async () => {
+  const calls = [];
+  const page = {
+    async focus(selector) {
+      calls.push(["focus", selector]);
+    },
+    keyboard: {
+      async press(value) {
+        calls.push(["press", value]);
+      },
+      async type(value) {
+        calls.push(["type", value]);
+      },
+    },
+  };
+
+  await typeVisible(page, "#editor", "Hi", {
+    detectState: readyState,
+    minDelay: 0,
+    maxDelay: 0,
+    replace: true,
+  });
+
+  assert.deepEqual(calls, [
+    ["focus", "#editor"],
+    ["press", "Meta+A"],
+    ["press", "Backspace"],
+    ["type", "H"],
+    ["type", "i"],
   ]);
 });
 

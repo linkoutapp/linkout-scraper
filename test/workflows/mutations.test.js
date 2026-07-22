@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const connect = require("../../lib/linkedin/linkedin.connect.service");
 const message = require("../../lib/linkedin/linkedin.message.service");
+const { waitForMessageSent } = message;
 const like = require("../../lib/linkedin/linkedin.like.service");
 const endorse = require("../../lib/linkedin/linkedin.endorse.service");
 
@@ -17,11 +18,120 @@ function element(text = "") {
   };
 }
 
+function profileMessageElement({ fullName, href }) {
+  return {
+    async evaluate(callback) {
+      const card = {
+        querySelector(selector) {
+          return selector === "h1" ? { textContent: fullName } : null;
+        },
+      };
+      return callback({
+        href,
+        getAttribute(name) {
+          return name === "href" ? href : null;
+        },
+        closest() {
+          return card;
+        },
+      });
+    },
+    async boundingBox() {
+      return { x: 1, y: 2, width: 10, height: 10 };
+    },
+  };
+}
+
+function composeControl(label, calls, x = 1) {
+  return {
+    label,
+    async focus() {
+      calls.push(["control-focus", label]);
+    },
+    async boundingBox() {
+      return { x, y: 2, width: 10, height: 10 };
+    },
+  };
+}
+
+function composeRoot({
+  profilePath,
+  recipient,
+  editor,
+  send,
+  sentState,
+  decoyProfilePaths = [],
+  decoyRecipientIds = [],
+}) {
+  const controls = (selector) => {
+    const value = selector.includes("contenteditable")
+      ? editor
+      : selector.includes("Send") || selector.includes("send-button")
+        ? send
+        : null;
+    return Array.isArray(value) ? value : value ? [value] : [];
+  };
+  return {
+    async $(selector) {
+      return controls(selector)[0] || null;
+    },
+    async $$(selector) {
+      return controls(selector);
+    },
+    async evaluate(_callback, argument) {
+      if (typeof argument === "string") {
+        return sentState || { editorText: "", lastMessage: "" };
+      }
+      return {
+        visible: true,
+        profilePaths: [...(profilePath ? [profilePath] : []), ...decoyProfilePaths],
+        recipientIds: [...(recipient ? [recipient] : []), ...decoyRecipientIds],
+        pathMatch:
+          profilePath === argument.path || decoyProfilePaths.includes(argument.path),
+        recipientMatch:
+          recipient === argument.recipient || decoyRecipientIds.includes(argument.recipient),
+        headerPathMatch: profilePath === argument.path,
+        headerRecipientMatch: recipient === argument.recipient,
+      };
+    },
+  };
+}
+
+function messagingFrame(root) {
+  return {
+    url() {
+      return "https://www.linkedin.com/messaging/preload/";
+    },
+    async $(selector) {
+      if (selector === "body") return root;
+      return root.$(selector);
+    },
+    async $$(selector) {
+      return selector === "body" ? [root] : [];
+    },
+    async evaluate(_callback, argument) {
+      if (typeof argument === "string") return root.evaluate(null, argument);
+      const details = await root.evaluate(null, argument);
+      return {
+        verified:
+          details.profilePaths.includes(argument.path) ||
+          details.recipientIds.includes(argument.recipient),
+        signal: "test-frame",
+      };
+    },
+    async focus(selector) {
+      const control = await root.$(selector);
+      if (control) await control.focus();
+    },
+  };
+}
+
 function mutationPage(selectors = {}) {
   const calls = [];
   const page = {
     calls,
-    frames: () => [],
+    frameList: [],
+    frames: () => page.frameList,
     url: () => page.currentUrl || "https://www.linkedin.com/feed/",
     async goto(url) {
       calls.push(["goto", url]);
@@ -30,6 +140,9 @@ function mutationPage(selectors = {}) {
     async $(selector) {
       calls.push(["query", selector]);
       return selectors[selector] || null;
+    },
+    async $$() {
+      return [];
     },
     async evaluate() {
       return {
@@ -42,6 +155,9 @@ function mutationPage(selectors = {}) {
       calls.push(["focus", selector]);
     },
     keyboard: {
+      async press(value) {
+        calls.push(["press", value]);
+      },
       async type(value) {
         calls.push(["type", value]);
       },
@@ -49,6 +165,12 @@ function mutationPage(selectors = {}) {
     cursor: {
       async click(target) {
         calls.push(["click", target]);
+      },
+    },
+    mouse: {
+      async move() {},
+      async click(x, y) {
+        calls.push(["native-click", x, y]);
       },
     },
   };
@@ -107,18 +229,25 @@ test("connect uses the 2026 semantic connect and success selectors", async () =>
 });
 
 test("message types through the current contenteditable and verifies a sent event", async () => {
-  const open = element();
-  const editor = element();
-  const send = element();
-  const success = element();
+  const open = profileMessageElement({
+    fullName: "Ada Lovelace",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=ada-id",
+  });
+  const calls = [];
+  const editor = composeControl("ada-editor", calls);
+  const send = composeControl("ada-send", calls);
+  const root = composeRoot({
+    profilePath: "/in/ada",
+    recipient: "ada-id",
+    editor,
+    send,
+    sentState: { editorText: "", lastMessage: "Hello Ada" },
+  });
   const page = mutationPage({
     main: element(),
-    "main h2": element("Ada Lovelace"),
-    'main a[href*="/messaging/thread/"]': open,
-    '[role="textbox"][contenteditable="true"]': editor,
-    'button[type="submit"][aria-label*="Send"]:not(:disabled)': send,
-    'main li:has(time):has(p)': success,
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
   });
+  page.frameList = [messagingFrame(root)];
   const policy = recordingPolicy();
 
   const result = await message(page, { actionPolicy: policy }, {
@@ -129,6 +258,7 @@ test("message types through the current contenteditable and verifies a sent even
     minDelay: 0,
     maxDelay: 0,
     clickDelay: 0,
+    recipientTimeout: 0,
   });
 
   assert.equal(result.status, "sent");
@@ -137,6 +267,254 @@ test("message types through the current contenteditable and verifies a sent even
     "Hello Ada"
   );
   assert.deepEqual(policy.calls.at(-1), ["complete", "message"]);
+});
+
+test("message rejects an unrelated global compose link before clicking", async () => {
+  const unrelated = element();
+  const page = mutationPage({
+    main: element(),
+    "main h2": element("Nivaas Sudhan"),
+    'main a[href*="/messaging/compose/"][href*="recipient="]': unrelated,
+  });
+  const policy = recordingPolicy();
+
+  await assert.rejects(
+    message(page, { actionPolicy: policy }, {
+      url: "https://www.linkedin.com/in/nivaassudhan/",
+      message: "hello",
+      confirm: true,
+      timeout: 0,
+      clickDelay: 0,
+    }),
+    (error) => error.code === "TARGET_PROFILE_NOT_VERIFIED"
+  );
+
+  assert.equal(page.calls.some(([name]) => name === "click"), false);
+});
+
+test("message does not type when the opened compose recipient is unverified", async () => {
+  const open = profileMessageElement({
+    fullName: "Nivaas Sudhan",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=nivaas-id",
+  });
+  const calls = [];
+  const wrongRoot = composeRoot({
+    profilePath: "/in/shrinivaasan/",
+    recipient: "shrinivaasan-id",
+    editor: composeControl("wrong-editor", calls),
+    send: composeControl("wrong-send", calls),
+  });
+  const page = mutationPage({
+    main: element(),
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+  });
+  page.frameList = [messagingFrame(wrongRoot)];
+  const policy = recordingPolicy();
+
+  await assert.rejects(
+    message(page, { actionPolicy: policy }, {
+      url: "https://www.linkedin.com/in/nivaassudhan/",
+      message: "hello",
+      confirm: true,
+      timeout: 0,
+      clickDelay: 0,
+      minDelay: 0,
+      maxDelay: 0,
+      recipientTimeout: 0,
+    }),
+    (error) => error.code === "TARGET_PROFILE_NOT_VERIFIED"
+  );
+
+  assert.equal(page.calls.some(([name]) => name === "type"), false);
+});
+
+test("message binds typing and Send to the uniquely verified conversation", async () => {
+  const open = profileMessageElement({
+    fullName: "Nivaas Sudhan",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=nivaas-id",
+  });
+  const controlCalls = [];
+  const wrongEditor = composeControl("shrinivaasan-editor", controlCalls);
+  const wrongSend = composeControl("shrinivaasan-send", controlCalls, 10);
+  const correctEditor = composeControl("nivaas-editor", controlCalls);
+  const correctSend = composeControl("nivaas-send", controlCalls, 100);
+  const wrongRoot = composeRoot({
+    profilePath: "/in/shrinivaasan",
+    recipient: "shrinivaasan-id",
+    editor: wrongEditor,
+    send: wrongSend,
+  });
+  const correctRoot = composeRoot({
+    profilePath: "/in/nivaassudhan",
+    recipient: "nivaas-id",
+    editor: correctEditor,
+    send: correctSend,
+    sentState: { editorText: "", lastMessage: "hello" },
+  });
+  const page = mutationPage({
+    main: element(),
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+  });
+  page.frameList = [messagingFrame(wrongRoot), messagingFrame(correctRoot)];
+  const policy = recordingPolicy();
+
+  const result = await message(page, { actionPolicy: policy }, {
+    url: "https://www.linkedin.com/in/nivaassudhan/",
+    message: "hello",
+    confirm: true,
+    timeout: 0,
+    recipientTimeout: 0,
+    clickDelay: 0,
+    minDelay: 0,
+    maxDelay: 0,
+  });
+
+  assert.equal(result.status, "sent");
+  assert.deepEqual(
+    controlCalls.filter(([name]) => name === "control-focus"),
+    [["control-focus", "nivaas-editor"]]
+  );
+  assert.equal(page.calls.some(([name, x]) => name === "native-click" && x === 15), false);
+  assert.equal(page.calls.some(([name, x]) => name === "native-click" && x === 105), true);
+});
+
+test("message rejects ambiguous controls inside the verified conversation", async () => {
+  const open = profileMessageElement({
+    fullName: "Nivaas Sudhan",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=nivaas-id",
+  });
+  const controlCalls = [];
+  const root = composeRoot({
+    profilePath: "/in/nivaassudhan",
+    recipient: "nivaas-id",
+    editor: [
+      composeControl("first-editor", controlCalls),
+      composeControl("second-editor", controlCalls),
+    ],
+    send: composeControl("send", controlCalls),
+  });
+  const page = mutationPage({
+    main: element(),
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+  });
+  page.frameList = [messagingFrame(root)];
+
+  await assert.rejects(
+    message(page, { actionPolicy: recordingPolicy() }, {
+      url: "https://www.linkedin.com/in/nivaassudhan/",
+      message: "hello",
+      confirm: true,
+      timeout: 0,
+      recipientTimeout: 0,
+      clickDelay: 0,
+    }),
+    (error) => error.code === "AMBIGUOUS_COMPOSE_CONTROL"
+  );
+  assert.equal(page.calls.some(([name]) => name === "type"), false);
+});
+
+test("message rejects distinct editors split across selector fallbacks", async () => {
+  const open = profileMessageElement({
+    fullName: "Nivaas Sudhan",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=nivaas-id",
+  });
+  const controlCalls = [];
+  const semanticEditor = composeControl("semantic-editor", controlCalls);
+  const fallbackEditor = composeControl("fallback-editor", controlCalls);
+  const send = composeControl("send", controlCalls);
+  const root = composeRoot({
+    profilePath: "/in/nivaassudhan",
+    recipient: "nivaas-id",
+    editor: semanticEditor,
+    send,
+  });
+  root.$$ = async (selector) => {
+    if (selector.includes(",") && selector.includes("contenteditable")) {
+      return [semanticEditor, fallbackEditor];
+    }
+    if (selector === '[role="textbox"][contenteditable="true"]') {
+      return [semanticEditor];
+    }
+    if (selector.includes("msg-form__contenteditable")) {
+      return [fallbackEditor];
+    }
+    if (selector.includes("Send") || selector.includes("send-button")) {
+      return [send];
+    }
+    return [];
+  };
+  const page = mutationPage({
+    main: element(),
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+  });
+  page.frameList = [messagingFrame(root)];
+
+  await assert.rejects(
+    message(page, { actionPolicy: recordingPolicy() }, {
+      url: "https://www.linkedin.com/in/nivaassudhan/",
+      message: "hello",
+      confirm: true,
+      timeout: 0,
+      recipientTimeout: 0,
+      clickDelay: 0,
+    }),
+    (error) => error.code === "AMBIGUOUS_COMPOSE_CONTROL"
+  );
+  assert.equal(page.calls.some(([name]) => name === "type"), false);
+});
+
+test("message ignores target-profile links inside the wrong conversation body", async () => {
+  const open = profileMessageElement({
+    fullName: "Nivaas Sudhan",
+    href: "https://www.linkedin.com/messaging/compose/?recipient=nivaas-id",
+  });
+  const controlCalls = [];
+  const wrongRoot = composeRoot({
+    profilePath: "/in/shrinivaasan",
+    recipient: "shrinivaasan-id",
+    decoyProfilePaths: ["/in/nivaassudhan"],
+    editor: composeControl("wrong-editor", controlCalls),
+    send: composeControl("wrong-send", controlCalls),
+    sentState: { editorText: "", lastMessage: "hello" },
+  });
+  const page = mutationPage({
+    main: element(),
+    'main [data-view-name="profile-top-card"] a[href*="/messaging/compose/"][href*="recipient="]': open,
+  });
+  page.frameList = [messagingFrame(wrongRoot)];
+
+  await assert.rejects(
+    message(page, { actionPolicy: recordingPolicy() }, {
+      url: "https://www.linkedin.com/in/nivaassudhan/",
+      message: "hello",
+      confirm: true,
+      timeout: 0,
+      recipientTimeout: 0,
+      clickDelay: 0,
+    }),
+    (error) => error.code === "TARGET_PROFILE_NOT_VERIFIED"
+  );
+  assert.equal(page.calls.some(([name]) => name === "type"), false);
+});
+
+test("message success waits for an exact new row and an empty editor", async () => {
+  const snapshots = [
+    { editorText: "hello", lastMessage: "older message" },
+    { editorText: "", lastMessage: "hello" },
+  ];
+  const context = {
+    async evaluate() {
+      return snapshots.shift();
+    },
+  };
+
+  const result = await waitForMessageSent({}, context, "#editor", "hello", {
+    detectState: async () => ({ state: "authenticated", stop: false }),
+    timeout: 10,
+    interval: 0,
+  });
+
+  assert.deepEqual(result, { editorText: "", lastMessage: "hello" });
 });
 
 test("like and endorse use semantic current selectors and success states", async () => {
