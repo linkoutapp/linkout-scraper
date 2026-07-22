@@ -23,6 +23,6 @@ test("every logical selector has ordered non-empty candidates", () => {
 test("current semantic candidates precede legacy class fallbacks", () => {
   assert.equal(selectors.profile.root[0], "main");
   assert.match(selectors.connections.profileLinks[0], /href/);
-  assert.match(selectors.messaging.conversation[0], /:has\(/);
+  assert.match(selectors.messaging.conversation[0], /:has\(a\[href/);
   assert.match(selectors.activity.postLinks[0], /feed\/update/);
 });

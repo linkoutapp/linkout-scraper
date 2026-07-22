@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const {
   findPageContext,
   findFirstSelector,
+  waitForPageContext,
 } = require("../../lib/helpers/find-page-context");
 
 function context(matches = {}) {
@@ -42,4 +43,21 @@ test("findPageContext returns null when no candidate matches", async () => {
   const page = Object.assign(context(), { frames: () => [] });
 
   assert.equal(await findPageContext(page, ["main"]), null);
+});
+
+test("waitForPageContext retries until dynamic content appears", async () => {
+  let attempts = 0;
+  const page = {
+    frames: () => [],
+    async $() {
+      attempts += 1;
+      return attempts >= 3 ? {} : null;
+    },
+  };
+
+  assert.equal(
+    await waitForPageContext(page, ["main"], { timeout: 100, interval: 0 }),
+    page
+  );
+  assert.equal(attempts, 3);
 });
