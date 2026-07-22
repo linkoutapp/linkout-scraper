@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "linkout-linkedin-read": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/linkout-mcp.js"],
+      "env": {
+        "LINKOUT_CHROME_URL": "http://127.0.0.1:9222"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "linkout-linkedin-read",
+  "version": "2.0.0",
+  "description": "Read LinkedIn through the user's visible local Chrome session.",
+  "author": {
+    "name": "Sai-Adarsh",
+    "email": "saiadarshsivakumar@gmail.com"
+  },
+  "homepage": "https://github.com/linkoutapp/linkout-scraper",
+  "repository": "https://github.com/linkoutapp/linkout-scraper",
+  "license": "ISC",
+  "keywords": ["linkedin", "read-only", "local-browser", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
