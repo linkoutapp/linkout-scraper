@@ -54,6 +54,8 @@ test("message history uses the matching child frame and semantic rows", async ()
   const result = await messagesFromChat(page, null, {
     user: "https://www.linkedin.com/in/ada/",
     count: 20,
+    pollInterval: 0,
+    timeout: 0,
   });
 
   assert.match(page.visited, /\/messaging\/compose\/\?connId=ada$/);
@@ -75,10 +77,46 @@ test("message history accepts an existing thread URL without rewriting it", asyn
   const result = await messagesFromChat(page, null, {
     user: threadUrl,
     count: 5,
+    pollInterval: 0,
+    timeout: 0,
   });
 
   assert.equal(page.visited, threadUrl);
   assert.deepEqual(result.values, []);
+});
+
+test("message history waits for the requested recent rows to hydrate", async () => {
+  const row = (message, time) => ({
+    times: [time],
+    profileNames: ["Ada Lovelace"],
+    paragraphs: [message],
+  });
+  const hydrated = [
+    row("one", "1:00 PM"),
+    row("two", "1:01 PM"),
+    row("three", "1:02 PM"),
+    row("four", "1:03 PM"),
+    row("five", "1:04 PM"),
+  ];
+  let reads = 0;
+  const page = messagingPage([]);
+  const frame = page.frames()[0];
+  frame.$$eval = async () => {
+    reads += 1;
+    return reads === 1 ? hydrated.slice(-1) : hydrated;
+  };
+
+  const result = await messagesFromChat(page, null, {
+    user: "https://www.linkedin.com/messaging/thread/example/",
+    count: 5,
+    pollInterval: 0,
+  });
+
+  assert.equal(reads, 2);
+  assert.deepEqual(
+    result.values.map(({ message }) => message),
+    ["one", "two", "three", "four", "five"]
+  );
 });
 
 test("message history reports an absent conversation root", async () => {
