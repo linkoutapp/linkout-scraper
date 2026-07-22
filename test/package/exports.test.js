@@ -1,5 +1,9 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const root = path.resolve(__dirname, "../..");
 
 test("CommonJS entry exports every supported service and tool name", () => {
   const linkout = require("../../lib/linkedin.service");
@@ -16,24 +20,36 @@ test("CommonJS entry exports every supported service and tool name", () => {
     "postsWithComments",
     "reactions",
     "salesNavScraper",
-    "send2FA",
     "visit",
   ]);
   for (const name of Object.keys(linkout.services)) {
     assert.equal(typeof linkout.services[name], "function", name);
   }
   assert.equal(typeof linkout.tools.loadCursor, "function");
-  assert.equal(typeof linkout.tools.setUserAgent, "function");
 });
 
-test("removed login automation is not exposed by the 2026 runtime", () => {
+test("removed legacy automation is absent from the 2026 runtime", () => {
   const linkout = require("../../lib/linkedin.service");
-  const selectors = require("../../lib/selectors");
 
   assert.equal(Object.hasOwn(linkout.services, "login"), false);
   assert.equal(Object.hasOwn(linkout.services, "loginWithEmail"), false);
-  assert.equal(Object.hasOwn(selectors.serviceWorkflows, "login"), false);
-  assert.equal(Object.hasOwn(selectors.serviceWorkflows, "loginWithEmail"), false);
+  assert.equal(Object.hasOwn(linkout.services, "send2FA"), false);
+  assert.equal(Object.hasOwn(linkout.tools, "setUserAgent"), false);
+
+  for (const file of [
+    "config/device.macos.json",
+    "lib/enums/linkedin.errors.js",
+    "lib/helpers/scrapeFeedData.js",
+    "lib/helpers/setUserAgent.js",
+    "lib/helpers/show.mouse.js",
+    "lib/helpers/typeMessage.js",
+    "lib/linkedin/linkedin.common.service.js",
+    "lib/linkedin/linkedin.send2FA.js",
+    "lib/selectors/auth.js",
+    "lib/selectors/index.js",
+  ]) {
+    assert.equal(fs.existsSync(path.join(root, file)), false, file);
+  }
 });
 
 test("CommonJS entry exports the safe 2026 infrastructure without connecting", () => {

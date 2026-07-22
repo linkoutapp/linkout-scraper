@@ -15,6 +15,7 @@ function trackedFiles() {
 test("credentials, legacy executable examples, and local browser state are not tracked", () => {
   const tracked = trackedFiles();
   for (const forbidden of [
+    ".DS_Store",
     ".env",
     "__tests__/test.example.js",
     "__tests__/test.sales.nav.scraper.js",
@@ -43,7 +44,7 @@ test("tracked runtime and documentation contain no credential values", () => {
 
 test("gitignore protects local credentials, ledgers, and Chrome profiles", () => {
   const ignore = fs.readFileSync(path.join(root, ".gitignore"), "utf8");
-  for (const entry of [".env", ".linkout/", "chrome-profile/"]) {
+  for (const entry of [".DS_Store", ".env", ".linkout/", "chrome-profile/"]) {
     assert.match(ignore, new RegExp(`^${entry.replace(".", "\\.")}$`, "m"));
   }
 });

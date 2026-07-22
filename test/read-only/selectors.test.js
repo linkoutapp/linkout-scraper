@@ -20,6 +20,13 @@ test("every logical selector has ordered non-empty candidates", () => {
   }
 });
 
+test("read-only registry contains only selectors consumed by runtime code", () => {
+  assert.deepEqual(Object.keys(selectors.profile).sort(), ["name", "root"]);
+  assert.deepEqual(Object.keys(selectors.connections).sort(), ["profileLinks", "root"]);
+  assert.deepEqual(Object.keys(selectors.messaging).sort(), ["conversation", "root"]);
+  assert.deepEqual(Object.keys(selectors.activity).sort(), ["cards"]);
+});
+
 test("current semantic candidates precede legacy class fallbacks", () => {
   assert.equal(selectors.profile.root[0], "main");
   assert.match(selectors.connections.profileLinks[0], /href/);
@@ -28,6 +35,4 @@ test("current semantic candidates precede legacy class fallbacks", () => {
     selectors.activity.cards[0],
     ".feed-shared-update-v2[data-urn]"
   );
-  assert.match(selectors.activity.postLinks[0], /feed\/update/);
-  assert.ok(selectors.activity.time.includes(".update-components-actor__sub-description"));
 });
