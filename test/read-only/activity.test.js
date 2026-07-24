@@ -50,10 +50,12 @@ function activityPage(rows = fixtureRows) {
 
   return {
     visited: null,
+    navigationOptions: null,
     clicked: false,
     frames: () => [],
-    async goto(url) {
+    async goto(url, options) {
       this.visited = url;
+      this.navigationOptions = options;
     },
     async $(selector) {
       return selector === cardSelector ? {} : null;
@@ -97,6 +99,21 @@ test("activity page extraction does not click controls", async () => {
       url: "https://www.linkedin.com/feed/update/urn:li:activity:456/",
     },
   ]);
+});
+
+test("activity navigation enforces a 60-second DOM-ready ceiling", async () => {
+  const page = activityPage();
+  await scrapeActivityPage(page, {
+    url: "https://www.linkedin.com/in/example/recent-activity/all/",
+    count: 1,
+    timeout: 0,
+    navigationTimeout: Infinity,
+  });
+
+  assert.deepEqual(page.navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 });
 
 test("activity normalization returns no rows for a zero count", () => {
