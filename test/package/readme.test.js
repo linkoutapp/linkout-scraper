@@ -26,7 +26,8 @@ test("README follows the Linvo-style package introduction", () => {
   for (const heading of ["Install", "Usage", "Maintainer", "Contributing", "License"]) {
     assert.match(readme, new RegExp(`^## ${heading}$`, "m"));
   }
-  assert.match(readme, /npm install linkout-scraper --save/);
+  assert.match(readme, /npm install github:linkoutapp\/linkout-scraper#main --save/);
+  assert.match(readme, /npm registry release is blocked until npm account 2FA is recovered/);
   assert.match(readme, /Scrape profiles/);
   assert.doesNotMatch(readme, /Sales Nav/i);
   assert.match(readme, /Connection requests/);

@@ -27,8 +27,10 @@ Local LinkedIn automation through a visible, signed-in Chrome session.
 ## Install
 
 ```sh
-npm install linkout-scraper --save
+npm install github:linkoutapp/linkout-scraper#main --save
 ```
+
+The npm registry release is blocked until npm account 2FA is recovered. Use the GitHub dependency for the current Linkout runtime.
 
 ## Usage
 
