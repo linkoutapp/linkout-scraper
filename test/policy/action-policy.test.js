@@ -5,6 +5,7 @@ const {
   createActionPolicy,
   createMemoryLedger,
 } = require("../../lib/policy/action-policy");
+const defaults = require("../../lib/policy/defaults");
 
 function config(overrides = {}) {
   return {
@@ -115,4 +116,13 @@ test("successful completion consumes budget and date rollover resets it", async 
   });
   await next.reject("NO_SUCCESS_STATE");
   assert.equal(await ledger.countSuccessful("connect", "2026-07-23"), 0);
+});
+
+test("default policy exposes only supported mutation operations", () => {
+  assert.deepEqual(Object.keys(defaults.operations).sort(), [
+    "connect",
+    "endorse",
+    "like",
+    "message",
+  ]);
 });
