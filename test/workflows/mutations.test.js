@@ -19,6 +19,26 @@ function element(text = "") {
   };
 }
 
+function linkElement({ text = "", href = "" } = {}) {
+  return {
+    async evaluate(callback) {
+      return callback({
+        textContent: text,
+        href,
+        getAttribute(name) {
+          return name === "href" ? href : null;
+        },
+      });
+    },
+    async boundingBox() {
+      return { x: 1, y: 2, width: 10, height: 10 };
+    },
+    async onClick(page) {
+      page.currentUrl = href;
+    },
+  };
+}
+
 function endorsementControl(skill, { transition = true } = {}) {
   let label = `Endorse ${skill}`;
   return {
@@ -233,7 +253,7 @@ function mutationPage(selectors = {}) {
       async click(target) {
         calls.push(["click", target]);
         if (target && typeof target.onClick === "function") {
-          await target.onClick();
+          await target.onClick(page);
         }
       },
     },
@@ -318,9 +338,9 @@ test("connect uses the 2026 semantic connect and success selectors", async () =>
   const page = mutationPage({
     main: element(),
     "main h2": element("Ada Lovelace"),
-    'main button[aria-label*="Invite"][aria-label*="connect"]': primary,
-    'button[aria-label*="Send invitation"]:not(:disabled)': send,
-    'main button[aria-label*="Pending"]': pending,
+    'main [data-view-name="profile-top-card"] a[href*="/preload/custom-invite/"]': primary,
+    '[role="dialog"] button[type="submit"]:not(:disabled)': send,
+    'main [aria-label*="Pending"][aria-label*="invitation"]': pending,
   });
   const policy = recordingPolicy();
 
@@ -337,6 +357,78 @@ test("connect uses the 2026 semantic connect and success selectors", async () =>
     [primary, send]
   );
   assert.deepEqual(policy.calls.at(-1), ["complete", "connect"]);
+});
+
+test("connect navigates custom invite anchors before sending without a note", async () => {
+  const primary = linkElement({
+    text: "Connect",
+    href: "https://www.linkedin.com/preload/custom-invite/?vanityName=siddhartshibiraj",
+  });
+  const send = element();
+  const pending = element();
+  const page = mutationPage({
+    main: element(),
+    "main h2": element("Siddhart Shibiraj"),
+    'main [data-view-name="profile-top-card"] a[href*="/preload/custom-invite/"]': primary,
+    '[role="dialog"] button[type="submit"]:not(:disabled)': send,
+    'main [aria-label*="Pending"][aria-label*="invitation"]': pending,
+  });
+
+  const result = await connect(page, { actionPolicy: recordingPolicy() }, {
+    url: "https://www.linkedin.com/in/siddhartshibiraj/",
+    confirm: true,
+    timeout: 0,
+    clickDelay: 0,
+  });
+
+  assert.equal(result.status, "sent");
+  assert.deepEqual(
+    page.calls.filter(([name]) => name === "goto").map(([, url]) => url),
+    [
+      "https://www.linkedin.com/in/siddhartshibiraj/",
+      "https://www.linkedin.com/in/siddhartshibiraj/",
+    ]
+  );
+  assert.equal(page.calls.some(([name, target]) => name === "click" && target === primary), true);
+  assert.equal(page.calls.some(([name, target]) => name === "click" && target === send), true);
+});
+
+test("connect uses the top-card more menu for third-degree custom invites", async () => {
+  const more = element();
+  const menuItem = linkElement({
+    text: "Connect",
+    href: "https://www.linkedin.com/preload/custom-invite/?vanityName=avish-arora-",
+  });
+  const send = element();
+  const pending = element();
+  const page = mutationPage({
+    main: element(),
+    "main h2": element("Avish Arora"),
+    'main section:has(h2) button[aria-label="More"]': more,
+    '[role="menuitem"][href*="/preload/custom-invite/"]': menuItem,
+    '[role="dialog"] button[type="submit"]:not(:disabled)': send,
+    'main [aria-label*="Pending"][aria-label*="invitation"]': pending,
+  });
+
+  const result = await connect(page, { actionPolicy: recordingPolicy() }, {
+    url: "https://www.linkedin.com/in/avish-arora-/",
+    confirm: true,
+    timeout: 0,
+    clickDelay: 0,
+  });
+
+  assert.equal(result.status, "sent");
+  assert.deepEqual(
+    page.calls.filter(([name]) => name === "click").map(([, target]) => target),
+    [more, menuItem, send]
+  );
+  assert.deepEqual(
+    page.calls.filter(([name]) => name === "goto").map(([, url]) => url),
+    [
+      "https://www.linkedin.com/in/avish-arora-/",
+      "https://www.linkedin.com/in/avish-arora-/",
+    ]
+  );
 });
 
 test("message waits for Send hydration and verifies a sent event", async () => {

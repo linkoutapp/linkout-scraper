@@ -100,6 +100,21 @@ test("connection status reports not connected without either signal", async () =
   );
 });
 
+test("connection status prefers an explicit connect CTA over unrelated first-degree text", async () => {
+  const page = statusPage({
+    texts: ["· 1st", "· 2nd", "Connect"],
+    labels: ["Invite Siddhart Shibiraj to connect"],
+    buttons: ["Connect"],
+  });
+
+  assert.equal(
+    await connectionStatus(page, null, {
+      user: "https://www.linkedin.com/in/siddhartshibiraj/",
+    }),
+    "Not connected"
+  );
+});
+
 test("profile visit reports a structured failure when no member heading exists", async () => {
   const page = profilePage(null);
   page.goto = async () => {};

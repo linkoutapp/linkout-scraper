@@ -51,7 +51,7 @@ test("current semantic action selectors precede legacy fallbacks", () => {
   ]);
   assert.deepEqual(Object.keys(actions.like).sort(), ["button", "success"]);
   assert.deepEqual(Object.keys(actions.endorse), ["button"]);
-  assert.match(actions.connect.primary[0], /aria-label/);
+  assert.match(actions.connect.primary[0], /href/);
   assert.match(actions.message.editor[0], /role="textbox"/);
   assert.match(actions.like.button[0], /aria-pressed/);
   assert.match(actions.endorse.button[0], /aria-label/);
