@@ -48,7 +48,7 @@ test("current semantic action selectors precede legacy fallbacks", () => {
     "composeRoot", "editor", "open", "send",
   ]);
   assert.deepEqual(Object.keys(actions.like).sort(), ["button", "success"]);
-  assert.deepEqual(Object.keys(actions.endorse).sort(), ["button", "success"]);
+  assert.deepEqual(Object.keys(actions.endorse), ["button"]);
   assert.deepEqual(Object.keys(salesNavigator).sort(), ["filters", "results"]);
   assert.deepEqual(Object.keys(salesNavigator.results).sort(), ["item", "list"]);
   assert.match(actions.connect.primary[0], /aria-label/);
