@@ -1,9 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const readOnly = require("../../lib/selectors/read-only");
 const actions = require("../../lib/selectors/actions");
-const salesNavigator = require("../../lib/selectors/sales-navigator");
+
+const root = path.resolve(__dirname, "../..");
 
 function selectorGroups(value, path = []) {
   const groups = [];
@@ -21,7 +24,6 @@ test("selector groups are non-empty, unique, and semantically prioritized", () =
   const groups = selectorGroups({
     readOnly,
     actions,
-    salesNavigator,
   });
 
   assert.ok(groups.length > 0);
@@ -49,11 +51,9 @@ test("current semantic action selectors precede legacy fallbacks", () => {
   ]);
   assert.deepEqual(Object.keys(actions.like).sort(), ["button", "success"]);
   assert.deepEqual(Object.keys(actions.endorse), ["button"]);
-  assert.deepEqual(Object.keys(salesNavigator).sort(), ["filters", "results"]);
-  assert.deepEqual(Object.keys(salesNavigator.results).sort(), ["item", "list"]);
   assert.match(actions.connect.primary[0], /aria-label/);
   assert.match(actions.message.editor[0], /role="textbox"/);
   assert.match(actions.like.button[0], /aria-pressed/);
   assert.match(actions.endorse.button[0], /aria-label/);
-  assert.match(salesNavigator.filters.currentTitle[0], /fieldset/);
+  assert.equal(fs.existsSync(path.join(root, "lib/selectors/sales-navigator.js")), false);
 });

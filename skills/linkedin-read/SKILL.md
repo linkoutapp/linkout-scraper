@@ -33,4 +33,4 @@ Stop immediately and report the state when the tool encounters login, checkpoint
 
 ## Boundaries
 
-This skill is read-only. Never type, send a message, connect, invite, like, endorse, submit login credentials or 2FA, change Sales Navigator filters, spoof a fingerprint, or claim that Linkout is undetectable. Ask the user to perform authentication manually in visible Chrome.
+This skill is read-only. Never type, send a message, connect, invite, like, endorse, submit login credentials or 2FA, change filters, spoof a fingerprint, or claim that Linkout is undetectable. Ask the user to perform authentication manually in visible Chrome.
