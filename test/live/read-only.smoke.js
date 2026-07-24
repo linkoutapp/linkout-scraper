@@ -26,6 +26,19 @@ async function requireHealthyPage(page, stage) {
   assert.equal(state.state, "authenticated");
 }
 
+function activityURLFromResults(posts, reactions, comments) {
+  const candidates = [
+    ...(Array.isArray(posts) ? posts : []),
+    ...((reactions && Array.isArray(reactions.values)) ? reactions.values : []),
+    ...((comments && Array.isArray(comments.values)) ? comments.values : []),
+  ];
+  return candidates
+    .map((candidate) => String(candidate.link || candidate.url || ""))
+    .find((url) =>
+      /^https:\/\/www\.linkedin\.com\/(?:feed\/update|posts)\//.test(url)
+    );
+}
+
 test(
   "live read-only selectors match in visible local Chrome",
   { skip: !enabled },
@@ -86,10 +99,37 @@ test(
         count: 1,
       });
       assert.ok(Array.isArray(posts));
-      await requireHealthyPage(page, "after activity extraction");
+      await requireHealthyPage(page, "after post extraction");
+
+      const reactions = await Linkout.services.reactions(page, null, {
+        user: approvedProfileURL,
+        count: 1,
+      });
+      assert.ok(reactions && Array.isArray(reactions.values));
+      await requireHealthyPage(page, "after reaction extraction");
+
+      const comments = await Linkout.services.comments(page, null, {
+        user: approvedProfileURL,
+        count: 1,
+      });
+      assert.ok(comments && Array.isArray(comments.values));
+      await requireHealthyPage(page, "after comment extraction");
+
+      const activityURL = activityURLFromResults(posts, reactions, comments);
+      assert.ok(activityURL, "The approved profile has no readable activity URL");
+      const approvedActivityURL = requireLinkedInURL(
+        activityURL,
+        /^\/(?:feed\/update|posts)\//
+      );
+      const postWithComments = await Linkout.services.postsWithComments(
+        page,
+        null,
+        { url: approvedActivityURL }
+      );
+      assert.ok(postWithComments && Array.isArray(postWithComments.comments));
+      await requireHealthyPage(page, "after post-with-comments extraction");
     } finally {
       await browser.disconnect();
     }
   }
 );
-
