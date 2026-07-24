@@ -62,6 +62,56 @@ test("clickVisible falls back to native mouse coordinates", async () => {
   ]);
 });
 
+test("clickVisible can require a ghost cursor for top-level clicks", async () => {
+  const target = {
+    async boundingBox() {
+      return { x: 10, y: 20, width: 40, height: 20 };
+    },
+  };
+
+  await assert.rejects(
+    clickVisible(
+      {
+        mouse: {
+          async move() {
+            assert.fail("must not use native mouse when cursor is required");
+          },
+          async click() {
+            assert.fail("must not use native mouse when cursor is required");
+          },
+        },
+      },
+      target,
+      {
+        detectState: readyState,
+        delay: 0,
+        requireCursor: true,
+      }
+    ),
+    (error) => error.code === "GHOST_CURSOR_REQUIRED"
+  );
+});
+
+test("clickVisible waits after a ghost cursor click", async () => {
+  const calls = [];
+  const page = {
+    cursor: {
+      async click() {
+        calls.push("click");
+      },
+    },
+  };
+
+  await clickVisible(page, {}, {
+    detectState: readyState,
+    delay: 0,
+    postDelay: 5,
+    sleep: async (milliseconds) => calls.push(["sleep", milliseconds]),
+  });
+
+  assert.deepEqual(calls, ["click", ["sleep", 5]]);
+});
+
 test("clickVisible scrolls an offscreen target before native coordinates", async () => {
   const calls = [];
   let scrolled = false;
@@ -155,6 +205,35 @@ test("typeVisible emits per-character native keyboard input", async () => {
     ["type", "H", { delay: 30 }],
     ["type", "i", { delay: 30 }],
     ["type", "!", { delay: 30 }],
+  ]);
+});
+
+test("typeVisible waits after native keyboard input", async () => {
+  const calls = [];
+  const page = {
+    async focus(selector) {
+      calls.push(["focus", selector]);
+    },
+    keyboard: {
+      async type(value) {
+        calls.push(["type", value]);
+      },
+    },
+  };
+
+  await typeVisible(page, "#editor", "Hi", {
+    detectState: readyState,
+    minDelay: 0,
+    maxDelay: 0,
+    postDelay: 7,
+    sleep: async (milliseconds) => calls.push(["sleep", milliseconds]),
+  });
+
+  assert.deepEqual(calls, [
+    ["focus", "#editor"],
+    ["type", "H"],
+    ["type", "i"],
+    ["sleep", 7],
   ]);
 });
 
