@@ -6,6 +6,7 @@ const message = require("../../lib/linkedin/linkedin.message.service");
 const { waitForMessageSent } = message;
 const like = require("../../lib/linkedin/linkedin.like.service");
 const endorse = require("../../lib/linkedin/linkedin.endorse.service");
+const { typeAction } = require("../../lib/linkedin/mutation-runtime");
 
 function element(text = "") {
   return {
@@ -14,6 +15,27 @@ function element(text = "") {
     },
     async boundingBox() {
       return { x: 1, y: 2, width: 10, height: 10 };
+    },
+  };
+}
+
+function endorsementControl(skill, { transition = true } = {}) {
+  let label = `Endorse ${skill}`;
+  return {
+    async evaluate(callback) {
+      return callback({
+        getAttribute(name) {
+          if (name === "aria-label") return label;
+          if (name === "aria-pressed") return "false";
+          return null;
+        },
+      });
+    },
+    async boundingBox() {
+      return { x: 1, y: 2, width: 10, height: 10 };
+    },
+    async onClick() {
+      if (transition) label = `Endorsed ${skill}`;
     },
   };
 }
@@ -178,8 +200,10 @@ function mutationPage(selectors = {}) {
       calls.push(["query", selector]);
       return selectors[selector] || null;
     },
-    async $$() {
-      return [];
+    async $$(selector) {
+      const match = selectors[selector];
+      if (Array.isArray(match)) return match;
+      return match ? [match] : [];
     },
     async evaluate() {
       return {
@@ -208,6 +232,9 @@ function mutationPage(selectors = {}) {
     cursor: {
       async click(target) {
         calls.push(["click", target]);
+        if (target && typeof target.onClick === "function") {
+          await target.onClick();
+        }
       },
     },
     mouse: {
@@ -242,6 +269,47 @@ function recordingPolicy() {
     },
   };
 }
+
+test("typeAction focuses the exact visible handle selected after hidden duplicates", async () => {
+  const calls = [];
+  const hidden = {
+    async isVisible() {
+      return false;
+    },
+    async dispose() {
+      calls.push(["dispose", "hidden"]);
+    },
+  };
+  const visible = {
+    async isVisible() {
+      return true;
+    },
+    async isIntersectingViewport() {
+      return true;
+    },
+    async focus() {
+      calls.push(["focus", "visible"]);
+    },
+    async dispose() {
+      calls.push(["dispose", "visible"]);
+    },
+  };
+  const selector = 'textarea[aria-label="Add a note"]';
+  const page = mutationPage({ [selector]: [hidden, visible] });
+
+  await typeAction(page, "connect", "note", [selector], "hello", {
+    timeout: 0,
+    minDelay: 0,
+    maxDelay: 0,
+  });
+
+  assert.deepEqual(calls, [
+    ["dispose", "hidden"],
+    ["focus", "visible"],
+    ["dispose", "visible"],
+  ]);
+  assert.equal(page.calls.some(([name]) => name === "focus"), false);
+});
 
 test("connect uses the 2026 semantic connect and success selectors", async () => {
   const primary = element();
@@ -594,10 +662,12 @@ test("like and endorse use semantic current selectors and success states", async
       endorse,
       "endorse",
       'main button[aria-label^="Endorse "]',
-      'main button[aria-label^="Remove endorsement"]',
+      'main button[aria-label^="Endorsed "]',
     ],
   ]) {
-    const control = element();
+    const control = operation === "endorse"
+      ? endorsementControl("Analytical Engine")
+      : element();
     const page = mutationPage({
       main: element(),
       [current]: control,
@@ -617,6 +687,90 @@ test("like and endorse use semantic current selectors and success states", async
     );
     assert.deepEqual(policy.calls.at(-1), ["complete", operation]);
   }
+});
+
+test("like accepts a rendered control below the current viewport", async () => {
+  const control = {
+    ...element(),
+    async isIntersectingViewport() {
+      return false;
+    },
+  };
+  const page = mutationPage({
+    main: element(),
+    'button[aria-pressed="false"][aria-label*="Like"]': control,
+    'button[aria-pressed="true"][aria-label*="Like"]': element(),
+  });
+  const policy = recordingPolicy();
+
+  const result = await like(page, { actionPolicy: policy }, {
+    url: "https://www.linkedin.com/in/ada/",
+    confirm: true,
+    timeout: 0,
+    clickDelay: 0,
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(page.calls.some(([name, target]) => name === "click" && target === control), true);
+});
+
+test("like disposes both the clicked control and verified success handle", async () => {
+  const disposed = [];
+  const control = {
+    ...element(),
+    async dispose() {
+      disposed.push("control");
+    },
+  };
+  const success = {
+    ...element(),
+    async dispose() {
+      disposed.push("success");
+    },
+  };
+  const page = mutationPage({
+    main: element(),
+    'button[aria-pressed="false"][aria-label*="Like"]': control,
+    'button[aria-pressed="true"][aria-label*="Like"]': success,
+  });
+
+  await like(page, { actionPolicy: recordingPolicy() }, {
+    url: "https://www.linkedin.com/in/ada/",
+    confirm: true,
+    timeout: 0,
+    clickDelay: 0,
+  });
+
+  assert.deepEqual(disposed, ["control", "success"]);
+});
+
+test("endorse rejects an unrelated skill that was already endorsed", async () => {
+  const target = endorsementControl("Target Skill", { transition: false });
+  target.dispose = async () => {
+    throw new Error("Execution context was destroyed during cleanup");
+  };
+  const unrelatedSuccess = element();
+  const page = mutationPage({
+    main: element(),
+    'main button[aria-label^="Endorse "]': target,
+    'main button[aria-label^="Endorsed "]': unrelatedSuccess,
+  });
+  const policy = recordingPolicy();
+
+  await assert.rejects(
+    endorse(page, { actionPolicy: policy }, {
+      url: "https://www.linkedin.com/in/ada/",
+      confirm: true,
+      timeout: 0,
+      clickDelay: 0,
+    }),
+    (error) => error.code === "ENDORSEMENT_NOT_VERIFIED"
+  );
+  assert.deepEqual(policy.calls.at(-1), [
+    "reject",
+    "endorse",
+    "ENDORSEMENT_NOT_VERIFIED",
+  ]);
 });
 
 test("an unconfirmed action never clicks", async () => {

@@ -62,6 +62,39 @@ test("clickVisible falls back to native mouse coordinates", async () => {
   ]);
 });
 
+test("clickVisible scrolls an offscreen target before native coordinates", async () => {
+  const calls = [];
+  let scrolled = false;
+  const target = {
+    async scrollIntoView() {
+      scrolled = true;
+      calls.push(["scroll"]);
+    },
+    async boundingBox() {
+      assert.equal(scrolled, true);
+      return { x: 10, y: 20, width: 40, height: 20 };
+    },
+  };
+  const page = {
+    mouse: {
+      async move(x, y) {
+        calls.push(["move", x, y]);
+      },
+      async click(x, y) {
+        calls.push(["click", x, y]);
+      },
+    },
+  };
+
+  await clickVisible(page, target, { detectState: readyState, delay: 0 });
+
+  assert.deepEqual(calls, [
+    ["scroll"],
+    ["move", 30, 30],
+    ["click", 30, 30],
+  ]);
+});
+
 test("clickVisible uses native coordinates for a child-frame target", async () => {
   const calls = [];
   const target = {
