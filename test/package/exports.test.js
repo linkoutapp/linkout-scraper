@@ -19,7 +19,6 @@ test("CommonJS entry exports every supported service and tool name", () => {
     "posts",
     "postsWithComments",
     "reactions",
-    "salesNavScraper",
     "visit",
   ]);
   for (const name of Object.keys(linkout.services)) {
@@ -45,11 +44,14 @@ test("removed legacy automation is absent from the 2026 runtime", () => {
     "lib/helpers/typeMessage.js",
     "lib/linkedin/linkedin.common.service.js",
     "lib/linkedin/linkedin.send2FA.js",
+    "lib/linkedin/linkedin.sales.nav.scraper.js",
     "lib/selectors/auth.js",
     "lib/selectors/index.js",
+    "lib/selectors/sales-navigator.js",
   ]) {
     assert.equal(fs.existsSync(path.join(root, file)), false, file);
   }
+  assert.equal(Object.hasOwn(linkout.services, "salesNavScraper"), false);
 });
 
 test("CommonJS entry exports the safe 2026 infrastructure without connecting", () => {

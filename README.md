@@ -1,96 +1,96 @@
-<div align="center">
+<p align="center">
   <a href="https://github.com/linkoutapp/brand" aria-label="Linkout brand assets">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg">
-      <img src="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg" alt="Linkout Scraper" width="144">
+      <img src="https://raw.githubusercontent.com/linkoutapp/brand/main/scraper-transparent.svg" alt="Linkout Scraper" width="180">
     </picture>
   </a>
+</p>
 
-  <h1>Linkout Scraper</h1>
+# Linkout LinkedIn Scraper
 
-  <p><strong>Local LinkedIn tooling through your visible, signed-in Chrome.</strong></p>
-  <p>Read-only Codex and Claude tools by default. Guarded actions when explicitly enabled.</p>
+[![MIT License](https://img.shields.io/badge/license-MIT-A143DA?labelColor=170460)](LICENSE)
 
-  <p>
-    <img alt="Node.js 22+" src="https://img.shields.io/badge/Node.js-22%2B-A143DA?labelColor=170460">
-    <img alt="macOS" src="https://img.shields.io/badge/platform-macOS-A143DA?labelColor=170460">
-    <img alt="Local Chrome" src="https://img.shields.io/badge/browser-local%20Chrome-A143DA?labelColor=170460">
-    <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-A143DA?labelColor=170460"></a>
-  </p>
-</div>
+Local LinkedIn automation through a visible, signed-in Chrome session.
 
-Linkout attaches to an existing Chrome session on your Mac. It keeps authentication, browsing, and network traffic on your machine while providing maintained LinkedIn selectors, bounded waits, page-state checks, and explicit mutation controls.
+- Use an existing LinkedIn session
+- Scrape profiles
+- Connection requests
+- Send messages
+- Read message threads
+- Endorse profiles
+- Visit profiles
+- Like posts
+- Posts, reactions and comments
 
-## Quick start
-
-Requirements: macOS, Node.js 22+, stable Google Chrome, and a dedicated persistent Chrome profile.
+## Install
 
 ```sh
-npm install
+npm install linkout-scraper --save
+```
 
+## Usage
+
+Start Chrome on the configured macOS device. Sign in to LinkedIn manually. Run Linkout against that browser.
+
+```sh
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --remote-debugging-port=9222 \
+  --window-size=1440,900 \
   --user-data-dir="/absolute/path/to/linkout-chrome-profile"
 ```
-
-Sign in to LinkedIn manually in that Chrome window, then start the local MCP server:
-
-```sh
-npm start:mcp
-```
-
-Use the repository directly as a Claude Code plugin with `claude --plugin-dir .`, or load its `.codex-plugin/plugin.json` manifest in Codex.
-
-## What it includes
-
-| Surface | Capabilities |
-| --- | --- |
-| Read-only MCP | Profiles, connection status, connections, message threads, posts, reactions, and comments |
-| CommonJS library | Read services plus guarded connect, message, like, endorse, and Sales Navigator actions |
-| Local runtime | Existing-Chrome attachment, semantic selector fallbacks, bounded timing, action policy, and audit ledger |
-
-<details>
-<summary>Read-only MCP tools</summary>
-
-- `linkedin_get_profile`
-- `linkedin_get_connection_status`
-- `linkedin_list_connections`
-- `linkedin_read_message_thread`
-- `linkedin_list_posts`
-- `linkedin_list_reactions`
-- `linkedin_list_comments`
-- `linkedin_list_posts_with_comments`
-
-</details>
-
-Library mutations are disabled by default. Every action requires `confirm: true` and an explicitly enabled local action policy.
 
 ```js
 const Linkout = require("linkout-scraper");
 
-const browser = await Linkout.tools.connectLocalChrome();
-const pages = await browser.pages();
-const page = pages.find((candidate) => candidate.url().includes("linkedin.com"));
+(async () => {
+  const browser = await Linkout.tools.connectLocalChrome();
+  const pages = await browser.pages();
+  const page =
+    pages.find((candidate) => candidate.url().includes("linkedin.com")) ||
+    (await browser.newPage());
 
-const result = await Linkout.services.visit(page, null, {
-  url: "https://www.linkedin.com/in/example/",
-});
+  await page.setViewport({
+    width: 1440,
+    height: 900,
+  });
+  await Linkout.tools.loadCursor(page, true);
+
+  const actionPolicy = Linkout.tools.createActionPolicy({
+    config: {
+      operatingHours: { start: 9, end: 18 },
+      operations: {
+        connect: { enabled: true, dailyLimit: 10 },
+      },
+    },
+  });
+
+  await Linkout.services.connect(
+    page,
+    { actionPolicy },
+    {
+      confirm: true,
+      message: "Hello.",
+      url: "https://www.linkedin.com/in/example/",
+    }
+  );
+})();
 ```
 
-## Safety
+Linkout keeps authentication on your device. It does not submit credentials, set LinkedIn cookies, use proxies, or accept browser fingerprint overrides.
 
-Linkout does not submit credentials or 2FA, spoof browser fingerprints, bypass CAPTCHA or checkpoints, use proxies, or promise undetectable automation. Security challenges, restrictions, automation warnings, and unexpected modals stop operations.
+## Maintainer
 
-LinkedIn prohibits unauthorized scraping and automation. Review its [automated-activity policy](https://www.linkedin.com/help/linkedin/answer/a1340567/automated-activity-on-linkedin?lang=en) and [User Agreement](https://www.linkedin.com/legal/user-agreement) before use.
+[Linkout](https://github.com/linkoutapp). Maintained by [Sai-Adarsh](https://github.com/Sai-Adarsh).
 
-## Development
+## Contributing
 
-```sh
-npm test
-npm run test:live:read-only
-```
+Issues and pull requests: [linkoutapp/linkout-scraper](https://github.com/linkoutapp/linkout-scraper/issues).
 
-The default suite is offline and performs no LinkedIn actions. The live smoke test is explicit and read-only; setup details are in [docs/live-smoke-tests.md](docs/live-smoke-tests.md).
+- Fork the repository and clone it on your device.
+- Open a pull request.
 
-Brand artwork is maintained in [linkoutapp/brand](https://github.com/linkoutapp/brand). Licensed under [MIT](LICENSE).
+## License
+
+[MIT](LICENSE).
