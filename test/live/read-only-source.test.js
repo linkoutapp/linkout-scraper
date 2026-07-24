@@ -28,3 +28,20 @@ test("live selector smoke harness cannot perform browser input or mutations", ()
   }
 });
 
+test("live selector smoke harness exercises every read-only service", () => {
+  const source = fs.readFileSync(smokePath, "utf8");
+  const services = [
+    "visit",
+    "connectionStatus",
+    "acceptedConnections",
+    "messagesFromChat",
+    "posts",
+    "reactions",
+    "comments",
+    "postsWithComments",
+  ];
+
+  for (const service of services) {
+    assert.match(source, new RegExp(`Linkout\\.services\\.${service}\\s*\\(`));
+  }
+});
