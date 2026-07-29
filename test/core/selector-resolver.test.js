@@ -330,6 +330,29 @@ test("resolveSelector skips child frames with stalled selector lookup", async ()
   assert.equal(result.handle, target);
 });
 
+test("resolveSelector gives slow main-page lookups at least one second", async () => {
+  const target = handle();
+  const page = {
+    frames: () => [],
+    url: () => "https://www.linkedin.com/in/example/",
+    async $$() {
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      return [target];
+    },
+  };
+
+  const result = await resolveSelector(page, {
+    workflow: "connect",
+    name: "primary",
+    candidates: ['a[href*="/preload/custom-invite/"]'],
+    timeout: 10000,
+    interval: 250,
+    visible: true,
+  });
+
+  assert.equal(result.handle, target);
+});
+
 test("resolveSelector preserves unexpected child-frame failures", async () => {
   const failure = new Error("CDP session closed unexpectedly");
   const frame = {

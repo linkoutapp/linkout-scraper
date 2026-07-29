@@ -6,6 +6,7 @@ const message = require("../../lib/linkedin/linkedin.message.service");
 const { waitForMessageSent } = message;
 const like = require("../../lib/linkedin/linkedin.like.service");
 const endorse = require("../../lib/linkedin/linkedin.endorse.service");
+const { waitForEndorsement } = endorse;
 const { typeAction } = require("../../lib/linkedin/mutation-runtime");
 
 function element(text = "") {
@@ -386,10 +387,11 @@ test("connect navigates custom invite anchors before sending without a note", as
     page.calls.filter(([name]) => name === "goto").map(([, url]) => url),
     [
       "https://www.linkedin.com/in/siddhartshibiraj/",
+      "https://www.linkedin.com/preload/custom-invite/?vanityName=siddhartshibiraj",
       "https://www.linkedin.com/in/siddhartshibiraj/",
     ]
   );
-  assert.equal(page.calls.some(([name, target]) => name === "click" && target === primary), true);
+  assert.equal(page.calls.some(([name, target]) => name === "click" && target === primary), false);
   assert.equal(page.calls.some(([name, target]) => name === "click" && target === send), true);
 });
 
@@ -420,12 +422,13 @@ test("connect uses the top-card more menu for third-degree custom invites", asyn
   assert.equal(result.status, "sent");
   assert.deepEqual(
     page.calls.filter(([name]) => name === "click").map(([, target]) => target),
-    [more, menuItem, send]
+    [more, send]
   );
   assert.deepEqual(
     page.calls.filter(([name]) => name === "goto").map(([, url]) => url),
     [
       "https://www.linkedin.com/in/avish-arora-/",
+      "https://www.linkedin.com/preload/custom-invite/?vanityName=avish-arora-",
       "https://www.linkedin.com/in/avish-arora-/",
     ]
   );
@@ -786,6 +789,51 @@ test("like and endorse use semantic current selectors and success states", async
     );
     assert.deepEqual(policy.calls.at(-1), ["complete", operation]);
   }
+});
+
+test("endorse verification accepts LinkedIn replacing the clicked button node", async () => {
+  const staleHandle = {
+    async evaluate(callback) {
+      return callback({
+        getAttribute(name) {
+          if (name === "aria-label") return "Endorse Core Java";
+          if (name === "aria-pressed") return "false";
+          return null;
+        },
+      });
+    },
+  };
+  const page = {
+    async evaluate(callback, skill) {
+      const fakeDocument = {
+        querySelector() {
+          return this;
+        },
+        querySelectorAll(selector) {
+          assert.match(selector, /Endorsed/);
+          assert.equal(skill, "Core Java");
+          return [{
+            getAttribute(name) {
+              if (name === "aria-label") return "Endorsed Core Java";
+              if (name === "aria-pressed") return "false";
+              return null;
+            },
+          }];
+        },
+      };
+      global.document = fakeDocument;
+      try {
+        return callback(skill);
+      } finally {
+        delete global.document;
+      }
+    },
+  };
+
+  await waitForEndorsement(page, staleHandle, "Core Java", {
+    timeout: 0,
+    interval: 0,
+  });
 });
 
 test("like accepts a rendered control below the current viewport", async () => {
