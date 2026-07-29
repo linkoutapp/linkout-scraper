@@ -86,10 +86,36 @@ test("clickVisible can require a ghost cursor for top-level clicks", async () =>
         detectState: readyState,
         delay: 0,
         requireCursor: true,
+        loadCursor: async () => {},
       }
     ),
     (error) => error.code === "GHOST_CURSOR_REQUIRED"
   );
+});
+
+test("clickVisible loads a ghost cursor when top-level action clicks require it", async () => {
+  const calls = [];
+  const target = {};
+  const page = {};
+
+  await clickVisible(page, target, {
+    detectState: readyState,
+    delay: 0,
+    requireCursor: true,
+    loadCursor: async (loadedPage) => {
+      calls.push(["load", loadedPage === page]);
+      loadedPage.cursor = {
+        async click(value) {
+          calls.push(["cursor", value === target]);
+        },
+      };
+    },
+  });
+
+  assert.deepEqual(calls, [
+    ["load", true],
+    ["cursor", true],
+  ]);
 });
 
 test("clickVisible waits after a ghost cursor click", async () => {

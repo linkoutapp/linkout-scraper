@@ -305,6 +305,31 @@ test("resolveSelector skips detached child frames and finds a stable frame", asy
   assert.equal(result.handle, target);
 });
 
+test("resolveSelector skips child frames with stalled selector lookup", async () => {
+  const target = handle();
+  const stalledFrame = {
+    async $$() {
+      return new Promise(() => {});
+    },
+  };
+  const stableFrame = context({ "main h2": target });
+  const page = Object.assign(context(), {
+    frames: () => [page, stalledFrame, stableFrame],
+    url: () => "https://www.linkedin.com/in/example/",
+  });
+
+  const result = await resolveSelector(page, {
+    workflow: "profile",
+    name: "name",
+    candidates: ["main h2"],
+    timeout: 50,
+    interval: 1,
+  });
+
+  assert.equal(result.context, stableFrame);
+  assert.equal(result.handle, target);
+});
+
 test("resolveSelector preserves unexpected child-frame failures", async () => {
   const failure = new Error("CDP session closed unexpectedly");
   const frame = {
