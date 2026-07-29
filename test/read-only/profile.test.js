@@ -30,9 +30,11 @@ function profilePage(heading) {
 function statusPage(signals) {
   return {
     visited: null,
+    navigationOptions: null,
     frames: () => [],
-    async goto(url) {
+    async goto(url, options) {
       this.visited = url;
+      this.navigationOptions = options;
     },
     async $(selector) {
       return selector === "main" ? {} : null;
@@ -76,6 +78,10 @@ test("connection status detects a first-degree relationship", async () => {
     }),
     "Connected"
   );
+  assert.deepEqual(page.navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 });
 
 test("connection status detects a pending invitation", async () => {
@@ -115,14 +121,91 @@ test("connection status prefers an explicit connect CTA over unrelated first-deg
   );
 });
 
+test("connection status ignores connect buttons outside the profile top card", async () => {
+  const page = {
+    visited: null,
+    navigationOptions: null,
+    frames: () => [],
+    async goto(url, options) {
+      this.visited = url;
+      this.navigationOptions = options;
+    },
+    async $(selector) {
+      return selector === "main" ? {} : null;
+    },
+    async evaluate(callback) {
+      const fakeDocument = {
+        querySelector(selector) {
+          return selector === "main" ? this : null;
+        },
+        querySelectorAll(selector) {
+          if (selector === '[data-view-name="profile-top-card"], section') {
+            return [
+              {
+                querySelector(value) {
+                  return value === "h1, h2" ? {} : null;
+                },
+                querySelectorAll(value) {
+                  if (value === "p, span") {
+                    return [{ textContent: "· 1st" }];
+                  }
+                  if (value === "button, a[aria-label], [role='button']") {
+                    return [{ textContent: "Message", getAttribute: () => "" }];
+                  }
+                  return [];
+                },
+              },
+              {
+                querySelector(value) {
+                  return value === "h1, h2" ? {} : null;
+                },
+                querySelectorAll(value) {
+                  if (value === "button, a[aria-label], [role='button']") {
+                    return [{
+                      textContent: "Connect",
+                      getAttribute: () => "Invite Decoy to connect",
+                    }];
+                  }
+                  return [];
+                },
+              },
+            ];
+          }
+          return [];
+        },
+      };
+      global.document = fakeDocument;
+      try {
+        return callback();
+      } finally {
+        delete global.document;
+      }
+    },
+  };
+
+  assert.equal(
+    await connectionStatus(page, null, {
+      user: "https://www.linkedin.com/in/friend/",
+    }),
+    "Connected"
+  );
+});
+
 test("profile visit reports a structured failure when no member heading exists", async () => {
   const page = profilePage(null);
-  page.goto = async () => {};
+  let navigationOptions;
+  page.goto = async (_url, options) => {
+    navigationOptions = options;
+  };
 
   await assert.rejects(
     () => visit(page, null, { url: "https://www.linkedin.com/in/missing/" }),
     (error) => error.code === "PROFILE_NOT_FOUND"
   );
+  assert.deepEqual(navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 });
 
 test("profile and connection reads propagate unexpected page failures", async () => {

@@ -212,8 +212,8 @@ function mutationPage(selectors = {}) {
     frameList: [],
     frames: () => page.frameList,
     url: () => page.currentUrl || "https://www.linkedin.com/feed/",
-    async goto(url) {
-      calls.push(["goto", url]);
+    async goto(url, options) {
+      calls.push(["goto", url, options]);
       page.currentUrl = url;
     },
     async $(selector) {
@@ -481,6 +481,13 @@ test("message waits for Send hydration and verifies a sent event", async () => {
     [
       "https://www.linkedin.com/in/ada/",
       "https://www.linkedin.com/messaging/compose/?recipient=ada-id",
+    ]
+  );
+  assert.deepEqual(
+    page.calls.filter(([name]) => name === "goto").map(([, , options]) => options),
+    [
+      { waitUntil: "domcontentloaded", timeout: 60000 },
+      { waitUntil: "domcontentloaded", timeout: 30000 },
     ]
   );
   assert.equal(

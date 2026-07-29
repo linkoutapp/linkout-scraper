@@ -10,10 +10,12 @@ function connectionsPage(rows) {
 
   return {
     visited: null,
+    navigationOptions: null,
     queriedSelector: null,
     frames: () => [],
-    async goto(url) {
+    async goto(url, options) {
       this.visited = url;
+      this.navigationOptions = options;
     },
     async $(selector) {
       return selector === "main" || selector === currentSelector ? {} : null;
@@ -35,6 +37,10 @@ test("connections use current profile links and remove duplicates", async () => 
   const result = await acceptedConnections(page);
 
   assert.equal(page.queriedSelector, 'main a[href*="/in/"]');
+  assert.deepEqual(page.navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
   assert.deepEqual(result, [
     { name: "Ada Lovelace", url: "https://www.linkedin.com/in/ada/" },
     { name: "Grace Hopper", url: "https://www.linkedin.com/in/grace/" },

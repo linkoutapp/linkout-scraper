@@ -24,9 +24,11 @@ function messagingPage(rows, header = { name: "Nithis", img: "avatar.png" }) {
 
   return {
     visited: null,
+    navigationOptions: null,
     frames: () => [frame],
-    async goto(url) {
+    async goto(url, options) {
       this.visited = url;
+      this.navigationOptions = options;
     },
     async $() {
       return null;
@@ -59,6 +61,10 @@ test("message history uses the matching child frame and semantic rows", async ()
   });
 
   assert.match(page.visited, /\/messaging\/compose\/\?connId=ada$/);
+  assert.deepEqual(page.navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
   assert.deepEqual(result, {
     name: "Nithis",
     img: "avatar.png",
@@ -82,6 +88,10 @@ test("message history accepts an existing thread URL without rewriting it", asyn
   });
 
   assert.equal(page.visited, threadUrl);
+  assert.deepEqual(page.navigationOptions, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
   assert.deepEqual(result.values, []);
 });
 
