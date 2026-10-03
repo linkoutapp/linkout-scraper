@@ -94,3 +94,9 @@ Issues and pull requests: [linkoutapp/linkout-scraper](https://github.com/linkou
 ## License
 
 [MIT](LICENSE).
+
+## AppSumo setup session
+
+Linkout’s $29 offer includes one 30-minute session with Sai to set up `linkout-scraper` on your Mac. The code is free under the MIT license. The deal is in AppSumo review and is not available to buy yet.
+
+[AppSumo deal status](https://www.linkout.space/appsumo.html)
