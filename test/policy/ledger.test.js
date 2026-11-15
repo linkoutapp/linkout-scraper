@@ -65,3 +65,41 @@ test("ledger appends JSON lines and counts only successful actions by local date
   assert.equal(await ledger.countSuccessful("connect", "2026-07-23"), 1);
   assert.equal((await ledger.read()).length, 3);
 });
+
+test("independent file ledgers reserve at most one slot and retain it after reopen", async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "linkout-reserve-"));
+  t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
+  const ledgers = [0, 1].map(() => createLedger({stateDirectory: directory}));
+  const entry = {operation: "connect", localDate: "2026-11-15", outcome: "reserved", actionId: "a"};
+  const results = await Promise.allSettled(ledgers.map(ledger => ledger.reserve(entry, 1)));
+  assert.equal(results.filter(r => r.status === "fulfilled" && r.value === true).length, 1);
+  assert.equal(await createLedger({stateDirectory: directory}).reserve(entry, 1), false);
+});
+
+test("a stale ledger lock fails closed without deleting another writer's lock", async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "linkout-lock-"));
+  t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
+  const ledger = createLedger({stateDirectory: directory});
+  fs.writeFileSync(`${ledger.file}.lock`, '');
+  await assert.rejects(ledger.reserve({operation: "message", localDate: "2026-11-15"}, 1),
+    error => error.code === "LEDGER_BUSY");
+  assert.equal(fs.existsSync(`${ledger.file}.lock`), true);
+});
+
+test("separate processes sharing a ledger cannot overbook a slot", async t => {
+  const {promisify} = require("node:util");
+  const execFile = promisify(require("node:child_process").execFile);
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "linkout-processes-"));
+  t.after(() => fs.rmSync(directory, {recursive: true, force: true}));
+  const script = `
+    const {createLedger} = require(process.argv[1]);
+    createLedger({stateDirectory: process.argv[2]}).reserve({
+      operation: 'connect', localDate: '2026-11-15', actionId: process.pid,
+    }, 1).then(ok => process.stdout.write(ok ? '1' : '0')).catch(error => {
+      if (error.code !== 'LEDGER_BUSY') throw error;
+      process.stdout.write('0');
+    });`;
+  const results = await Promise.all([0, 1].map(() => execFile(process.execPath,
+    ['-e', script, require.resolve('../../lib/policy/ledger'), directory])));
+  assert.equal(results.reduce((sum, result) => sum + Number(result.stdout), 0), 1);
+});

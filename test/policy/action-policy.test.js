@@ -126,3 +126,34 @@ test("default policy exposes only supported mutation operations", () => {
     "message",
   ]);
 });
+
+test("parallel policy instances sharing a ledger cannot overbook the last slot", async () => {
+  const ledger = createMemoryLedger();
+  const policies = [0, 1].map(() => createActionPolicy({
+    config: config(), ledger, clock: clockAt(10),
+  }));
+  const results = await Promise.allSettled(policies.map(policy => policy.begin({
+    operation: "connect", target: "https://www.linkedin.com/in/a/", confirm: true,
+  })));
+  assert.equal(results.filter(result => result.status === "fulfilled").length, 1);
+  assert.equal(results.find(result => result.status === "rejected").reason.code, "DAILY_LIMIT_REACHED");
+});
+
+test("an admitted failed attempt keeps its slot and invalid limits fail closed", async () => {
+  const policy = createActionPolicy({config: config(), clock: clockAt(10)});
+  const transaction = await policy.begin({operation: "connect", confirm: true});
+  await transaction.reject("UNCERTAIN_BROWSER_RESULT");
+  await assert.rejects(policy.begin({operation: "connect", confirm: true}),
+    error => error.code === "DAILY_LIMIT_REACHED");
+  const invalid = createActionPolicy({
+    config: config({connect: {enabled: true, dailyLimit: NaN}}), clock: clockAt(10),
+  });
+  await assert.rejects(invalid.begin({operation: "connect", confirm: true}),
+    error => error.code === "INVALID_DAILY_LIMIT");
+});
+
+test("a string confirmation never authorizes a mutation", async () => {
+  const policy = createActionPolicy({config: config(), clock: clockAt(10)});
+  await assert.rejects(policy.begin({operation: "connect", confirm: "false"}),
+    error => error.code === "CONFIRMATION_REQUIRED");
+});
