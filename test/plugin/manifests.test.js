@@ -14,6 +14,7 @@ test("Codex and Claude manifests share identity, version, author, and skill", ()
   assert.equal(claude.name, codex.name);
   assert.match(codex.version, /^\d+\.\d+\.\d+$/);
   assert.equal(claude.version, codex.version);
+  assert.equal(codex.version, readJson("package.json").version);
   assert.deepEqual(claude.author, codex.author);
   assert.equal(codex.author.name, "Sai-Adarsh");
   assert.equal(codex.author.email, "saiadarshsivakumar@gmail.com");

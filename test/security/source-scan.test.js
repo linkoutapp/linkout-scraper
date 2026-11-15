@@ -36,7 +36,7 @@ test("2026 runtime has no stealth, fingerprint spoofing, or infinite wait hooks"
 
 test("package targets maintained direct-runtime dependencies", () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-  assert.equal(pkg.version, "2.0.0");
+  assert.match(pkg.version, /^2\.\d+\.\d+$/);
   assert.equal(pkg.main, "lib/linkedin.service.js");
   assert.equal(pkg.engines.node, ">=22");
   assert.equal(pkg.scripts.test, "node --test");
