@@ -23,6 +23,7 @@ test("server registers every definition and writes no diagnostic text to stdout"
   const server = createMcpServer({ McpServer: FakeServer, z, handlers });
 
   assert.equal(server.identity.name, "linkout-linkedin-read");
+  assert.equal(server.identity.version, require("../../package.json").version);
   assert.equal(registrations.length, 8);
   const source = fs.readFileSync(require.resolve("../../lib/mcp/server"), "utf8");
   assert.doesNotMatch(source, /console\.log|process\.stdout\.write/);

@@ -1,6 +1,6 @@
 {
   "name": "linkout-scraper",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Local, visible-browser LinkedIn reading tools for Node.js, Claude Code, and Codex.",
   "main": "lib/linkedin.service.js",
   "bin": {
